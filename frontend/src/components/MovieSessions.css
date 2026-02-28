@@ -1,0 +1,40 @@
+.movie-sessions {
+  margin-bottom: 2rem;
+}
+
+.movie-sessions h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.movie-sessions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.movie-sessions li {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.movie-sessions .date {
+  font-weight: 500;
+}
+
+.movie-sessions .hall {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.movie-sessions .empty {
+  color: var(--muted);
+}

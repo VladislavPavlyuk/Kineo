@@ -1,0 +1,31 @@
+:root {
+  --bg: #0d0d12;
+  --surface: #16161d;
+  --border: #2a2a35;
+  --text: #e8e8ed;
+  --muted: #8b8b9a;
+  --accent: #e63946;
+  --accent-hover: #ff4d5a;
+  --success: #2ecc71;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}

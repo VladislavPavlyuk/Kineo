@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KINEO{% endblock %}</title>
+    {% load static %}
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">KINEO</a>
+        <nav>
+            <a href="/">Фільми</a>
+            <a href="/sessions">Сеанси</a>
+            <a href="/movies/new">Додати фільм</a>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <span>KINEO © {% now "Y" %}</span>
+    </footer>
+</body>
+</html>

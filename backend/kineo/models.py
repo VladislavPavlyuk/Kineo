@@ -1,0 +1,57 @@
+from django.db import models
+
+
+class Studio(models.Model):
+    name = models.CharField(max_length=255)
+    country = models.CharField(max_length=100, default="Україна")
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class Movie(models.Model):
+    title = models.CharField(max_length=255)
+    studio = models.ForeignKey(
+        Studio, on_delete=models.SET_NULL, null=True, blank=True, related_name="movies"
+    )
+    description = models.TextField(blank=True)
+    year = models.PositiveIntegerField()
+    duration = models.PositiveIntegerField(help_text="Тривалість у хвилинах")
+    genre = models.CharField(max_length=100)
+    poster = models.ImageField(upload_to="posters/", blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-year", "title"]
+
+    def __str__(self):
+        return f"{self.title} ({self.year})"
+
+
+class Session(models.Model):
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="sessions")
+    date = models.DateTimeField()
+    hall_number = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ["date"]
+
+    def __str__(self):
+        return f"{self.movie.title} - {self.date}"
+
+
+class Review(models.Model):
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="reviews")
+    username = models.CharField(max_length=100)
+    text = models.TextField()
+    rating = models.PositiveSmallIntegerField(default=5)  # оцінка від 1 до 5
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.username} - {self.movie.title}"
