@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import Studio, Movie, Session, Review
+from .models import UserProfile, Studio, Movie, Session, Review
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ["user", "phone"]
+
+
 
 
 @admin.register(Studio)
@@ -20,4 +27,4 @@ class SessionAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ["username", "movie", "rating", "created_at"]
+    list_display = ["user", "movie", "rating", "created_at"]

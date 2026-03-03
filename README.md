@@ -1,15 +1,15 @@
 # KINEO
 
-Кінотеатр: Django REST API + React Vite frontend.
+Кінотеатр: Django з шаблонами Python (Jinja2/DTL).
 
 ## Структура
 
-- `backend/` — Django + DRF (моделі, API)
-- `frontend/` — React + TypeScript + Vite
+- `backend/` — Django (моделі, API, шаблони)
+- `backend/kineo/templates/kineo/` — HTML-шаблони (Django Template Language)
+- `backend/kineo/static/kineo/` — CSS
+- `frontend/` — застарілий React (більше не використовується)
 
 ## Запуск
-
-### Backend
 
 ```bash
 cd backend
@@ -17,30 +17,41 @@ python -m venv venv
 venv\Scripts\activate   # Windows
 pip install -r requirements.txt
 python manage.py migrate
+python manage.py create_groups
 python manage.py createsuperuser   # для admin
 python manage.py runserver
 ```
 
-### Frontend
+Відкрити http://127.0.0.1:8000/
+
+## Сторінки
+
+- `/` — список фільмів
+- `/movies/<id>/` — деталі фільму, сеанси, відгуки
+- `/movies/new/` — додати фільм (Staff)
+- `/sessions/` — розклад сеансів
+- `/login/`, `/register/` — авторизація
+- `/profile/` — мій профіль
+- `/users/<id>/` — профіль користувача
+
+## API (REST)
+
+- `/api/movies/`, `/api/sessions/`, `/api/reviews/` — JSON API (JWT)
+
+## Права доступу
+
+- **Гості**: тільки перегляд
+- **Клієнти** (група Clients): відгуки (1 на фільм), редагування власних
+- **Персонал** (група Staff): фільми, сеанси, видалення відгуків
 
 ```bash
-cd frontend
-npm install
-npm run dev
+python manage.py create_groups
+# Django admin: Users → Groups → Clients або Staff
 ```
-
-Відкрити http://localhost:5173 (Vite проксує /api та /media на Django).
-
-## API
-
-- `GET/POST /api/movies/` — список, створення
-- `GET/PATCH/DELETE /api/movies/:id/` — деталі, оновлення, видалення
-- `GET /api/movies/:id/sessions/` — сеанси фільму
-- `GET/POST /api/movies/:id/reviews/` — відгуки фільму
-- `GET /api/sessions/?movie=id` — сеанси (опційно по фільму)
 
 ## Моделі
 
 - **Movie**: title, description, year, duration, genre, poster
 - **Session**: movie (FK), date, hall_number
-- **Review**: movie (FK), username, text, rating, created_at
+- **Review**: movie (FK), user (FK), text, rating
+- **UserProfile**: user (1:1), bio, avatar, phone

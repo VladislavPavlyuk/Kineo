@@ -1,4 +1,16 @@
+from django.conf import settings
 from django.db import models
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile"
+    )
+    bio = models.TextField(blank=True)
+    phone = models.CharField(max_length=20, blank=True)
+
+    def __str__(self):
+        return str(self.user)
 
 
 class Studio(models.Model):
@@ -45,13 +57,16 @@ class Session(models.Model):
 
 class Review(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="reviews")
-    username = models.CharField(max_length=100)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviews"
+    )
     text = models.TextField()
     rating = models.PositiveSmallIntegerField(default=5)  # оцінка від 1 до 5
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
+        unique_together = [["movie", "user"]]
 
     def __str__(self):
-        return f"{self.username} - {self.movie.title}"
+        return f"{self.user} - {self.movie.title}"

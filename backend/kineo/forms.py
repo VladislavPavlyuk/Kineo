@@ -1,5 +1,9 @@
 from django import forms
-from .models import Movie, Session, Review
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from .models import Movie, Session, Review, UserProfile
 
 
 class MovieForm(forms.ModelForm):
@@ -14,7 +18,7 @@ class MovieForm(forms.ModelForm):
 class SessionForm(forms.ModelForm):
     class Meta:
         model = Session
-        fields = ["movie", "date", "hall_number"]
+        fields = ["date", "hall_number"]
         widgets = {
             "date": forms.DateTimeInput(attrs={"type": "datetime-local"}),
         }
@@ -23,8 +27,44 @@ class SessionForm(forms.ModelForm):
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
-        fields = ["username", "text", "rating"]
+        fields = ["text", "rating"]
         widgets = {
             "text": forms.Textarea(attrs={"rows": 3}),
             "rating": forms.Select(choices=[(i, f"{i} ★") for i in range(1, 6)]),
         }
+
+
+class RegisterForm(forms.Form):
+    username = forms.CharField(max_length=150)
+    email = forms.EmailField(required=False)
+    password = forms.CharField(widget=forms.PasswordInput)
+    password2 = forms.CharField(widget=forms.PasswordInput, label="Підтвердіть пароль")
+
+    def clean_username(self):
+        username = self.cleaned_data["username"].strip()
+        if User.objects.filter(username=username).exists():
+            raise ValidationError("Користувач з таким ім'ям вже існує")
+        return username
+
+    def clean(self):
+        data = super().clean()
+        if data.get("password") != data.get("password2"):
+            raise ValidationError({"password2": "Паролі не збігаються"})
+        if data.get("password"):
+            try:
+                validate_password(data["password"])
+            except ValidationError as e:
+                raise ValidationError({"password": list(e.messages)})
+        return data
+
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(label="Ім'я")
+    password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ["bio", "phone"]
+        widgets = {"bio": forms.Textarea(attrs={"rows": 4})}

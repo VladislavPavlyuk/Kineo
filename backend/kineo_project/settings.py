@@ -42,6 +42,7 @@ TEMPLATES = [
                 "django.template.context_processors.media",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "kineo.context_processors.auth_groups",
             ],
         },
     },
@@ -77,8 +78,15 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "movie_list"
+LOGOUT_REDIRECT_URL = "movie_list"
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
 }
