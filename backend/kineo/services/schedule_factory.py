@@ -1,4 +1,3 @@
-# factory for schedule creation, accepts data provider
 from datetime import timedelta
 from typing import Protocol
 
@@ -81,4 +80,4 @@ class ScheduleFactory:
                 )
                 if created_flag:
                     created += 1
-        return created  # number of sessions created
+        return created

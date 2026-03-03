@@ -1,4 +1,3 @@
-# command creates schedule via factory
 from django.core.management.base import BaseCommand
 
 from kineo.services import ScheduleFactory

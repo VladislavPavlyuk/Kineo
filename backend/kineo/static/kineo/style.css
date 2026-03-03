@@ -6,6 +6,7 @@
   --muted: #8b8b9a;
   --accent: #e63946;
   --accent-hover: #ff4d5a;
+  --accent-hover-bg: rgba(230, 57, 70, 0.15);
   font-family: "JetBrains Mono", "Fira Code", monospace;
 }
 
@@ -57,11 +58,6 @@ a:hover { color: var(--accent-hover); }
   border-radius: 6px;
   border: 1px solid transparent;
 }
-.header nav a.hover-accent:hover {
-  background: rgba(230, 57, 70, 0.15);
-  color: var(--accent);
-  border-color: var(--accent);
-}
 
 .profile-menu {
   display: flex;
@@ -69,7 +65,7 @@ a:hover { color: var(--accent-hover); }
   align-items: center;
 }
 
-.profile-trigger { margin-right: 0.5rem; }
+.profile-menu form { display: inline; }
 
 .main { flex: 1; }
 
@@ -196,7 +192,7 @@ a:hover { color: var(--accent-hover); }
 .btn-secondary:hover { background: var(--surface); }
 
 .hover-accent:hover {
-  background: rgba(230, 57, 70, 0.15) !important;
+  background: var(--accent-hover-bg) !important;
   color: var(--accent) !important;
   border-color: var(--accent) !important;
 }
@@ -207,9 +203,7 @@ a:hover { color: var(--accent-hover); }
   border: 1px solid var(--accent);
 }
 
-.btn-danger:hover {
-  background: rgba(230, 57, 70, 0.1);
-}
+.btn-danger:hover { background: var(--accent-hover-bg); }
 
 .btn-link {
   background: none;

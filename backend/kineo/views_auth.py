@@ -24,7 +24,7 @@ class RegisterView(APIView):
             )
         if not password:
             return Response(
-                {"password": ["Обов'язкове поле"]},
+                {"password": ["This field is required"]},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

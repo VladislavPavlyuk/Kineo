@@ -1,4 +1,4 @@
-# add new providers here without changing other code
+# add new providers here
 from kineo.services.schedule_factory import ScheduleDataProvider
 
 
@@ -6,7 +6,6 @@ PROVIDERS: dict[str, type[ScheduleDataProvider]] = {}
 
 
 def register_provider(name: str):
-    # реєструє провайдер в списку
     def decorator(cls):
         PROVIDERS[name] = cls
         return cls
@@ -15,8 +14,6 @@ def register_provider(name: str):
 
 @register_provider("ukrainian")
 class UkrainianScheduleDataProvider:
-    # Ukrainian film studios data
-
     STUDIOS = [
         ("Київська кіностудія ім. О. П. Довженка", "Ukraine"),
         ("Одеська кіностудія художніх фільмів", "Ukraine"),

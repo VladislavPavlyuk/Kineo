@@ -31,7 +31,7 @@ class Movie(models.Model):
     )
     description = models.TextField(blank=True)
     year = models.PositiveIntegerField()
-    duration = models.PositiveIntegerField(help_text="Тривалість у хвилинах")
+    duration = models.PositiveIntegerField(help_text="Duration in minutes")
     genre = models.CharField(max_length=100)
     poster = models.ImageField(upload_to="posters/", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -61,7 +61,7 @@ class Review(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviews"
     )
     text = models.TextField()
-    rating = models.PositiveSmallIntegerField(default=5)  # 1-5
+    rating = models.PositiveSmallIntegerField(default=5)  # 1 to 5
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

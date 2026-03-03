@@ -71,7 +71,7 @@ def movie_edit(request, pk):
         form = MovieForm(request.POST, request.FILES, instance=movie)
         if form.is_valid():
             form.save()
-            messages.success(request, "Фільм оновлено")
+            messages.success(request, "Movie updated")
             return redirect("movie_detail", pk=movie.pk)
     else:
         form = MovieForm(instance=movie)
@@ -124,7 +124,7 @@ def review_create(request, movie_id):
         return redirect("movie_detail", pk=movie_id)
     movie = get_object_or_404(Movie, pk=movie_id)
     if Review.objects.filter(movie=movie, user=request.user).exists():
-        messages.error(request, "Ви вже залишили відгук на цей фільм")
+        messages.error(request, "You have already reviewed this movie")
         return redirect("movie_detail", pk=movie_id)
     form = ReviewForm(request.POST)
     if form.is_valid():
