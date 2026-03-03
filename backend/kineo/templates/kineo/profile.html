@@ -1,10 +1,10 @@
 {% extends "kineo/base.html" %}
 
-{% block title %}Мій профіль - KINEO{% endblock %}
+{% block title %}My profile - KINEO{% endblock %}
 
 {% block content %}
 <section class="profile-page">
-    <h1>Мій профіль</h1>
+    <h1>My profile</h1>
     <div class="profile-card">
                 <div class="profile-details">
             <h2>{{ user.username }}</h2>
@@ -15,7 +15,7 @@
             <form method="post" class="profile-form">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Зберегти</button>
+                <button type="submit" class="btn btn-primary">Save</button>
             </form>
         </div>
     </div>

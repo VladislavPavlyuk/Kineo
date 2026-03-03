@@ -1,10 +1,10 @@
 {% extends "kineo/base.html" %}
 
-{% block title %}Фільми - KINEO{% endblock %}
+{% block title %}Movies - KINEO{% endblock %}
 
 {% block content %}
 <section class="list-view">
-    <h1>Фільми</h1>
+    <h1>Movies</h1>
     <div class="movie-grid">
         {% for m in movies %}
         <a href="{% url 'movie_detail' m.pk %}" class="movie-card">
@@ -12,7 +12,7 @@
                 {% if m.poster %}
                     <img src="{{ m.poster.url }}" alt="{{ m.title }}">
                 {% else %}
-                    <div class="poster-placeholder">Немає постеру</div>
+                    <div class="poster-placeholder">No poster</div>
                 {% endif %}
             </div>
             <div class="card-info">
@@ -21,7 +21,7 @@
             </div>
         </a>
         {% empty %}
-        <p class="empty">Немає фільмів</p>
+        <p class="empty">No movies</p>
         {% endfor %}
     </div>
 </section>

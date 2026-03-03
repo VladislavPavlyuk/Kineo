@@ -19,7 +19,7 @@ class RegisterView(APIView):
 
         if not username:
             return Response(
-                {"username": ["Обов'язкове поле"]},
+                {"username": ["This field is required"]},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         if not password:
@@ -30,7 +30,7 @@ class RegisterView(APIView):
 
         if User.objects.filter(username=username).exists():
             return Response(
-                {"username": ["Користувач з таким ім'ям вже існує"]},
+                {"username": ["User with this username already exists"]},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

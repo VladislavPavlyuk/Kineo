@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 
 
 class Command(BaseCommand):
-    help = "Створює групи Clients та Staff"
+    help = "Creates Clients and Staff groups"
 
     def handle(self, *args, **options):
         Group.objects.get_or_create(name="Clients")

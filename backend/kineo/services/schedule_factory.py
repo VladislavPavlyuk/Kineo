@@ -1,4 +1,4 @@
-# фабрика для створення розкладу, приймає провайдер даних
+# factory for schedule creation, accepts data provider
 from datetime import timedelta
 from typing import Protocol
 
@@ -42,7 +42,7 @@ class ScheduleFactory:
                 year=year,
                 defaults={
                     "studio": studio,
-                    "description": f"Режисер: {director}",
+                    "description": f"Director: {director}",
                     "duration": duration,
                     "genre": genre,
                 },
@@ -81,4 +81,4 @@ class ScheduleFactory:
                 )
                 if created_flag:
                     created += 1
-        return created  # скільки сеансів створили
+        return created  # number of sessions created

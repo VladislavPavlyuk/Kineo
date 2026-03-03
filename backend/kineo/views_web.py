@@ -48,13 +48,13 @@ def movie_detail(request, pk):
 @login_required
 def movie_create(request):
     if not _is_staff(request.user):
-        messages.error(request, "Доступ заборонено")
+        messages.error(request, "Access denied")
         return redirect("movie_list")
     if request.method == "POST":
         form = MovieForm(request.POST, request.FILES)
         if form.is_valid():
             movie = form.save()
-            messages.success(request, "Фільм додано")
+            messages.success(request, "Movie added")
             return redirect("movie_detail", pk=movie.pk)
     else:
         form = MovieForm()
@@ -64,7 +64,7 @@ def movie_create(request):
 @login_required
 def movie_edit(request, pk):
     if not _is_staff(request.user):
-        messages.error(request, "Доступ заборонено")
+        messages.error(request, "Access denied")
         return redirect("movie_list")
     movie = get_object_or_404(Movie, pk=pk)
     if request.method == "POST":
@@ -82,11 +82,11 @@ def movie_edit(request, pk):
 @require_http_methods(["POST"])
 def movie_delete(request, pk):
     if not _is_staff(request.user):
-        messages.error(request, "Доступ заборонено")
+        messages.error(request, "Access denied")
         return redirect("movie_list")
     movie = get_object_or_404(Movie, pk=pk)
     movie.delete()
-    messages.success(request, "Фільм видалено")
+    messages.success(request, "Movie deleted")
     return redirect("movie_list")
 
 
@@ -100,7 +100,7 @@ def sessions_list(request):
 @login_required
 def session_create(request, movie_id):
     if not _is_staff(request.user):
-        messages.error(request, "Доступ заборонено")
+        messages.error(request, "Access denied")
         return redirect("movie_list")
     movie = get_object_or_404(Movie, pk=movie_id)
     if request.method == "POST":
@@ -120,7 +120,7 @@ def session_create(request, movie_id):
 @require_http_methods(["POST"])
 def review_create(request, movie_id):
     if not _is_client(request.user):
-        messages.error(request, "Тільки клієнти можуть додавати відгуки")
+        messages.error(request, "Only clients can add reviews")
         return redirect("movie_detail", pk=movie_id)
     movie = get_object_or_404(Movie, pk=movie_id)
     if Review.objects.filter(movie=movie, user=request.user).exists():
@@ -132,7 +132,7 @@ def review_create(request, movie_id):
         review.movie = movie
         review.user = request.user
         review.save()
-        messages.success(request, "Відгук додано")
+        messages.success(request, "Review added")
     else:
         messages.error(request, form.errors.as_text())
     return redirect("movie_detail", pk=movie_id)
@@ -142,13 +142,13 @@ def review_create(request, movie_id):
 def review_edit(request, pk):
     review = get_object_or_404(Review, pk=pk)
     if review.user_id != request.user.id:
-        messages.error(request, "Доступ заборонено")
+        messages.error(request, "Access denied")
         return redirect("movie_detail", pk=review.movie_id)
     if request.method == "POST":
         form = ReviewForm(request.POST, instance=review)
         if form.is_valid():
             form.save()
-            messages.success(request, "Відгук оновлено")
+            messages.success(request, "Review updated")
             return redirect("movie_detail", pk=review.movie_id)
     else:
         form = ReviewForm(instance=review)
@@ -161,10 +161,10 @@ def review_delete(request, pk):
     review = get_object_or_404(Review, pk=pk)
     movie_id = review.movie_id
     if review.user_id != request.user.id and not _is_staff(request.user):
-        messages.error(request, "Доступ заборонено")
+        messages.error(request, "Access denied")
         return redirect("movie_detail", pk=movie_id)
     review.delete()
-    messages.success(request, "Відгук видалено")
+    messages.success(request, "Review deleted")
     return redirect("movie_detail", pk=movie_id)
 
 
@@ -183,7 +183,7 @@ def register_view(request):
             user.groups.add(clients)
             UserProfile.objects.get_or_create(user=user)
             login(request, user)
-            messages.success(request, "Реєстрація успішна")
+            messages.success(request, "Registration successful")
             return redirect("movie_list")
     else:
         form = RegisterForm()
@@ -198,7 +198,7 @@ class KineoLoginView(LoginView):
 
 def logout_view(request):
     logout(request)
-    messages.success(request, "Ви вийшли")
+    messages.success(request, "You have been logged out")
     return redirect("movie_list")
 
 
@@ -209,7 +209,7 @@ def profile_view(request):
         form = ProfileForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
-            messages.success(request, "Профіль оновлено")
+            messages.success(request, "Profile updated")
             return redirect("profile")
     else:
         form = ProfileForm(instance=profile)

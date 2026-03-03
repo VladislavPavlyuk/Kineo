@@ -51,8 +51,17 @@ a:hover { color: var(--accent-hover); }
   gap: 1.5rem;
 }
 
-.header nav a { color: var(--text); }
-.header nav a:hover { color: var(--accent); }
+.header nav a {
+  color: var(--text);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+.header nav a.hover-accent:hover {
+  background: rgba(230, 57, 70, 0.15);
+  color: var(--accent);
+  border-color: var(--accent);
+}
 
 .profile-menu {
   display: flex;
@@ -186,13 +195,21 @@ a:hover { color: var(--accent-hover); }
 
 .btn-secondary:hover { background: var(--surface); }
 
+.hover-accent:hover {
+  background: rgba(230, 57, 70, 0.15) !important;
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
 .btn-danger {
   background: transparent;
   color: var(--accent);
   border: 1px solid var(--accent);
 }
 
-.btn-danger:hover { background: rgba(230, 57, 70, 0.1); }
+.btn-danger:hover {
+  background: rgba(230, 57, 70, 0.1);
+}
 
 .btn-link {
   background: none;

@@ -1,4 +1,4 @@
-# views використовують сервіси
+# views use services
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -57,7 +57,7 @@ class MovieViewSet(viewsets.ModelViewSet):
             )
         if Review.objects.filter(movie=movie, user=request.user).exists():
             return Response(
-                {"detail": "Ви вже залишили відгук на цей фільм"},
+                {"detail": "You have already reviewed this movie"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         data = {**request.data, "movie": movie.id, "user": request.user.id}

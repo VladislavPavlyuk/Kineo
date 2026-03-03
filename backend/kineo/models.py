@@ -15,7 +15,7 @@ class UserProfile(models.Model):
 
 class Studio(models.Model):
     name = models.CharField(max_length=255)
-    country = models.CharField(max_length=100, default="Україна")
+    country = models.CharField(max_length=100, default="Ukraine")
 
     class Meta:
         ordering = ["name"]
@@ -61,7 +61,7 @@ class Review(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviews"
     )
     text = models.TextField()
-    rating = models.PositiveSmallIntegerField(default=5)  # оцінка від 1 до 5
+    rating = models.PositiveSmallIntegerField(default=5)  # 1-5
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -1,10 +1,10 @@
 {% extends "kineo/base.html" %}
 
-{% block title %}Сеанси - KINEO{% endblock %}
+{% block title %}Sessions - KINEO{% endblock %}
 
 {% block content %}
 <section class="sessions-tab">
-    <h1>Найближчі сеанси</h1>
+    <h1>Upcoming sessions</h1>
     {% if sessions %}
     <div class="sessions-list">
         {% for s in sessions %}
@@ -12,13 +12,13 @@
             <div class="session-movie">{{ s.movie.title }}</div>
             <div class="session-details">
                 <span class="date">{{ s.date|date:"D, d M, H:i" }}</span>
-                <span class="hall">Зал {{ s.hall_number }}</span>
+                <span class="hall">Hall {{ s.hall_number }}</span>
             </div>
         </a>
         {% endfor %}
     </div>
     {% else %}
-    <p class="empty">Немає активних сеансів</p>
+    <p class="empty">No upcoming sessions</p>
     {% endif %}
 </section>
 {% endblock %}

@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,23 +12,22 @@
         <header class="header">
             <a href="{% url 'movie_list' %}" class="logo">KINEO</a>
             <nav>
-                <a href="{% url 'movie_list' %}">Фільми</a>
-                <a href="{% url 'sessions_list' %}">Сеанси</a>
+                <a href="{% url 'movie_list' %}" class="nav-link hover-accent">Movies</a>
+                <a href="{% url 'sessions_list' %}" class="nav-link hover-accent">Sessions</a>
                 {% if is_staff %}
-                    <a href="{% url 'movie_create' %}">Додати фільм</a>
+                    <a href="{% url 'movie_create' %}" class="nav-link hover-accent">Add movie</a>
                 {% endif %}
             </nav>
             <div class="profile-menu">
                 {% if user.is_authenticated %}
-                    <span class="profile-trigger">{{ user.username }}</span>
-                    <a href="{% url 'profile' %}" class="btn btn-secondary">Переглянути</a>
+                    <a href="{% url 'profile' %}" class="btn btn-secondary hover-accent">{{ user.username }}</a>
                     <form method="post" action="{% url 'logout' %}" style="display:inline;">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-secondary">Вийти</button>
+                        <button type="submit" class="btn btn-secondary hover-accent">Logout</button>
                     </form>
                 {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-primary">Увійти</a>
-                    <a href="{% url 'register' %}" class="btn btn-secondary">Реєстрація</a>
+                    <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-secondary">Register</a>
                 {% endif %}
             </div>
         </header>

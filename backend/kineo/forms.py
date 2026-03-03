@@ -38,18 +38,18 @@ class RegisterForm(forms.Form):
     username = forms.CharField(max_length=150)
     email = forms.EmailField(required=False)
     password = forms.CharField(widget=forms.PasswordInput)
-    password2 = forms.CharField(widget=forms.PasswordInput, label="Підтвердіть пароль")
+    password2 = forms.CharField(widget=forms.PasswordInput, label="Confirm password")
 
     def clean_username(self):
         username = self.cleaned_data["username"].strip()
         if User.objects.filter(username=username).exists():
-            raise ValidationError("Користувач з таким ім'ям вже існує")
+            raise ValidationError("User with this username already exists")
         return username
 
     def clean(self):
         data = super().clean()
         if data.get("password") != data.get("password2"):
-            raise ValidationError({"password2": "Паролі не збігаються"})
+            raise ValidationError({"password2": "Passwords do not match"})
         if data.get("password"):
             try:
                 validate_password(data["password"])
@@ -59,8 +59,8 @@ class RegisterForm(forms.Form):
 
 
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(label="Ім'я")
-    password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
+    username = forms.CharField(label="Username")
+    password = forms.CharField(widget=forms.PasswordInput, label="Password")
 
 
 class ProfileForm(forms.ModelForm):

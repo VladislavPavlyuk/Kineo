@@ -1,4 +1,4 @@
-# команда створює розклад за допомогою фабрики
+# command creates schedule via factory
 from django.core.management.base import BaseCommand
 
 from kineo.services import ScheduleFactory
@@ -9,7 +9,7 @@ from kineo.services.schedule_data_providers import (
 
 
 class Command(BaseCommand):
-    help = "Створює українські кіностудії, фільми та розклад сеансів"
+    help = "Creates Ukrainian studios, movies and session schedule"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -21,13 +21,13 @@ class Command(BaseCommand):
         parser.add_argument(
             "--clear",
             action="store_true",
-            help="спочатку видалити всі дані",
+            help="clear all data first",
         )
         parser.add_argument(
             "--provider",
             default="ukrainian",
             choices=list(PROVIDERS.keys()),
-            help="звідки брати дані студій і фільмів",
+            help="data provider for studios and movies",
         )
 
     def handle(self, *args, **options):

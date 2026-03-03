@@ -1,15 +1,15 @@
 {% extends "kineo/base.html" %}
 
-{% block title %}Увійти - KINEO{% endblock %}
+{% block title %}Login - KINEO{% endblock %}
 
 {% block content %}
 <section class="register-page">
-    <h1>Увійти</h1>
+    <h1>Login</h1>
     <form method="post" class="register-form">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Увійти</button>
+        <button type="submit" class="btn btn-primary">Login</button>
     </form>
-    <p class="register-link">Немає акаунту? <a href="{% url 'register' %}">Зареєструватися</a></p>
+    <p class="register-link">No account? <a href="{% url 'register' %}">Register</a></p>
 </section>
 {% endblock %}

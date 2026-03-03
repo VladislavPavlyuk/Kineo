@@ -1,4 +1,4 @@
-# тут можна додати нові провайдери без зміни іншого коду
+# add new providers here without changing other code
 from kineo.services.schedule_factory import ScheduleDataProvider
 
 
@@ -15,13 +15,13 @@ def register_provider(name: str):
 
 @register_provider("ukrainian")
 class UkrainianScheduleDataProvider:
-    # дані українських кіностудій
+    # Ukrainian film studios data
 
     STUDIOS = [
-        ("Київська кіностудія ім. О. П. Довженка", "Україна"),
-        ("Одеська кіностудія художніх фільмів", "Україна"),
-        ("Київнаукфільм", "Україна"),
-        ("Укркінохроніка", "Україна"),
+        ("Київська кіностудія ім. О. П. Довженка", "Ukraine"),
+        ("Одеська кіностудія художніх фільмів", "Ukraine"),
+        ("Київнаукфільм", "Ukraine"),
+        ("Укркінохроніка", "Ukraine"),
     ]
 
     MOVIES = [
