@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KINEO{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'kineo/style.css' %}">
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <a href="{% url 'movie_list' %}" class="logo">KINEO</a>
+            <nav>
+                <a href="{% url 'movie_list' %}">Фільми</a>
+                <a href="{% url 'sessions_list' %}">Сеанси</a>
+                {% if is_staff %}
+                    <a href="{% url 'movie_create' %}">Додати фільм</a>
+                {% endif %}
+            </nav>
+            <div class="profile-menu">
+                {% if user.is_authenticated %}
+                    <span class="profile-trigger">{{ user.username }}</span>
+                    <a href="{% url 'profile' %}" class="btn btn-secondary">Переглянути</a>
+                    <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-secondary">Вийти</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary">Увійти</a>
+                    <a href="{% url 'register' %}" class="btn btn-secondary">Реєстрація</a>
+                {% endif %}
+            </div>
+        </header>
+        <main class="main">
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+        <footer class="footer">
+            <span>KINEO © {% now "Y" %}</span>
+        </footer>
+    </div>
+</body>
+</html>

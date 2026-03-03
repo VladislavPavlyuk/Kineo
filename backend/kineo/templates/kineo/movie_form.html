@@ -1,0 +1,17 @@
+{% extends "kineo/base.html" %}
+
+{% block title %}{% if is_edit %}Редагувати{% else %}Додати фільм{% endif %} - KINEO{% endblock %}
+
+{% block content %}
+<section class="movie-form-section">
+    <h1>{% if is_edit %}Редагувати фільм{% else %}Додати фільм{% endif %}</h1>
+    <form method="post" enctype="multipart/form-data" class="movie-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{% if is_edit %}Зберегти{% else %}Додати{% endif %}</button>
+            <a href="{% if movie %}{% url 'movie_detail' movie.pk %}{% else %}{% url 'movie_list' %}{% endif %}" class="btn btn-secondary">Скасувати</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

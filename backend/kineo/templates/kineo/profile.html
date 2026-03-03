@@ -1,0 +1,23 @@
+{% extends "kineo/base.html" %}
+
+{% block title %}Мій профіль - KINEO{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+    <h1>Мій профіль</h1>
+    <div class="profile-card">
+                <div class="profile-details">
+            <h2>{{ user.username }}</h2>
+            {% if user.groups.all %}
+            <p class="profile-group">Група: {{ user.groups.all|join:", " }}</p>
+            {% endif %}
+            <p class="profile-email">{{ user.email }}</p>
+            <form method="post" class="profile-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Зберегти</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

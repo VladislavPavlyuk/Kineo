@@ -1,0 +1,15 @@
+{% extends "kineo/base.html" %}
+
+{% block title %}Реєстрація - KINEO{% endblock %}
+
+{% block content %}
+<section class="register-page">
+    <h1>Реєстрація</h1>
+    <form method="post" class="register-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Зареєструватися</button>
+    </form>
+    <p class="register-link">Вже є акаунт? <a href="{% url 'login' %}">Увійти</a></p>
+</section>
+{% endblock %}

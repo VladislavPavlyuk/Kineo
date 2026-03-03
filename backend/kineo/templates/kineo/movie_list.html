@@ -1,0 +1,28 @@
+{% extends "kineo/base.html" %}
+
+{% block title %}Фільми - KINEO{% endblock %}
+
+{% block content %}
+<section class="list-view">
+    <h1>Фільми</h1>
+    <div class="movie-grid">
+        {% for m in movies %}
+        <a href="{% url 'movie_detail' m.pk %}" class="movie-card">
+            <div class="poster-wrap">
+                {% if m.poster %}
+                    <img src="{{ m.poster.url }}" alt="{{ m.title }}">
+                {% else %}
+                    <div class="poster-placeholder">Немає постеру</div>
+                {% endif %}
+            </div>
+            <div class="card-info">
+                <h3>{{ m.title }}</h3>
+                <span class="meta">{{ m.year }} · {{ m.genre }} · {{ m.duration }} хв</span>
+            </div>
+        </a>
+        {% empty %}
+        <p class="empty">Немає фільмів</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

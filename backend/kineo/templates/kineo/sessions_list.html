@@ -1,0 +1,24 @@
+{% extends "kineo/base.html" %}
+
+{% block title %}Сеанси - KINEO{% endblock %}
+
+{% block content %}
+<section class="sessions-tab">
+    <h1>Найближчі сеанси</h1>
+    {% if sessions %}
+    <div class="sessions-list">
+        {% for s in sessions %}
+        <a href="{% url 'movie_detail' s.movie_id %}" class="session-card">
+            <div class="session-movie">{{ s.movie.title }}</div>
+            <div class="session-details">
+                <span class="date">{{ s.date|date:"D, d M, H:i" }}</span>
+                <span class="hall">Зал {{ s.hall_number }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty">Немає активних сеансів</p>
+    {% endif %}
+</section>
+{% endblock %}

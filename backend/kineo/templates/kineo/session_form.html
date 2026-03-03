@@ -1,0 +1,17 @@
+{% extends "kineo/base.html" %}
+
+{% block title %}Додати сеанс - KINEO{% endblock %}
+
+{% block content %}
+<section class="movie-form-section">
+    <h1>Додати сеанс: {{ movie.title }}</h1>
+    <form method="post" class="movie-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Додати</button>
+            <a href="{% url 'movie_detail' movie.pk %}" class="btn btn-secondary">Скасувати</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

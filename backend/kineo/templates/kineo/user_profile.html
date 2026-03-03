@@ -1,0 +1,21 @@
+{% extends "kineo/base.html" %}
+
+{% block title %}Профіль {{ profile.user.username }} - KINEO{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+    <h1>Профіль</h1>
+    <div class="profile-card">
+        <div class="profile-details">
+            <h2>{{ profile.user.username }}</h2>
+            {% if profile.user.groups.all %}
+            <p class="profile-group">Група: {{ profile.user.groups.all|join:", " }}</p>
+            {% endif %}
+            {% if profile.user.email %}<p class="profile-email">{{ profile.user.email }}</p>{% endif %}
+            {% if profile.phone %}<p>Телефон: {{ profile.phone }}</p>{% endif %}
+            {% if profile.bio %}<p class="profile-bio">{{ profile.bio }}</p>{% endif %}
+        </div>
+    </div>
+    <a href="{% url 'movie_list' %}" class="btn btn-secondary">Назад</a>
+</section>
+{% endblock %}
