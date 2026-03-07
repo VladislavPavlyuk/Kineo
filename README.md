@@ -7,7 +7,6 @@ Cinema: Django with Python templates (DTL).
 - `backend/` — Django (models, API, templates)
 - `backend/kineo/templates/kineo/` — HTML templates (Django Template Language)
 - `backend/kineo/static/kineo/` — CSS
-- `frontend/` — deprecated React (no longer used)
 
 ## Run
 

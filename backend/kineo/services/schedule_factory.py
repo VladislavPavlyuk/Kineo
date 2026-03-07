@@ -7,6 +7,7 @@ from kineo.models import Studio, Movie, Session
 
 
 class ScheduleDataProvider(Protocol):
+    # Protocol тут як "контракт": будь-який provider має мати ці 2 методи
     def get_studios(self) -> list[tuple[str, str]]:
         ...
 
@@ -16,9 +17,11 @@ class ScheduleDataProvider(Protocol):
 
 class ScheduleFactory:
     def __init__(self, data_provider: ScheduleDataProvider):
+        # Залежність передаємо ззовні, щоб можна було підміняти джерело даних
         self.data_provider = data_provider
 
     def clear(self) -> None:
+        # Чистимо у порядку Session -> Movie -> Studio, щоб не впертися у FK-зв'язки
         Session.objects.all().delete()
         Movie.objects.all().delete()
         Studio.objects.all().delete()
@@ -35,6 +38,7 @@ class ScheduleFactory:
     def create_movies(self, studios: list[Studio]) -> list[Movie]:
         movies_data = self.data_provider.get_movies()
         for i, (title, year, duration, genre, director) in enumerate(movies_data):
+            # Розподіляємо фільми по студіях циклічно
             studio = studios[i % len(studios)]
             Movie.objects.get_or_create(
                 title=title,
@@ -64,6 +68,7 @@ class ScheduleFactory:
             hour=start_hour, minute=0, second=0, microsecond=0
         )
         if start < now:
+            # Якщо сьогоднішній стартовий час уже пройшов - починаємо з наступного дня
             start += timedelta(days=1)
 
         created = 0
@@ -71,7 +76,9 @@ class ScheduleFactory:
             day_start = start + timedelta(days=day)
             for slot in range(slots_per_day):
                 session_time = day_start + timedelta(hours=slot * slot_interval_hours)
+                # Рівномірно чергуємо фільми по слотах
                 movie = movies[(day * slots_per_day + slot) % len(movies)]
+                # Простий розподіл по залах 1..3
                 hall = (slot % 3) + 1
                 _, created_flag = Session.objects.get_or_create(
                     movie=movie,

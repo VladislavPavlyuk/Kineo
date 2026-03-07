@@ -4,6 +4,8 @@ from .models import Studio, Movie, Session, Review, UserProfile
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    # source="user.id" бере поле з пов'язаної моделі User
+    # read_only=True: клієнт не може змінювати ці поля через API
     user_id = serializers.IntegerField(source="user.id", read_only=True)
     username = serializers.CharField(source="user.username", read_only=True)
     email = serializers.CharField(source="user.email", read_only=True)
@@ -15,6 +17,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class UserBriefSerializer(serializers.ModelSerializer):
+    # SerializerMethodField обчислюється методом get_<field_name>
     profile_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -22,6 +25,7 @@ class UserBriefSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "profile_url"]
 
     def get_profile_url(self, obj):
+        # obj - це конкретний User
         return f"/api/users/{obj.id}/"
 
 
@@ -32,6 +36,7 @@ class StudioSerializer(serializers.ModelSerializer):
 
 
 class MovieSerializer(serializers.ModelSerializer):
+    # Віддаємо назву студії окремо, щоб на фронті не робити додатковий запит
     studio_name = serializers.CharField(source="studio.name", read_only=True)
 
     class Meta:
@@ -44,6 +49,7 @@ class MovieSerializer(serializers.ModelSerializer):
 
 
 class SessionSerializer(serializers.ModelSerializer):
+    # Аналогічно підтягуємо назву фільму для зручності UI
     movie_title = serializers.CharField(source="movie.title", read_only=True)
 
     class Meta:
@@ -52,6 +58,7 @@ class SessionSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    # Додаємо дані про автора відгуку у відповідь
     username = serializers.CharField(source="user.username", read_only=True)
     user_id = serializers.IntegerField(source="user.id", read_only=True)
     user_profile_url = serializers.SerializerMethodField()
@@ -65,4 +72,5 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ["created_at", "user", "user_id", "username", "user_profile_url"]
 
     def get_user_profile_url(self, obj):
+        # Формуємо посилання на профіль автора відгуку
         return f"/api/users/{obj.user_id}/"

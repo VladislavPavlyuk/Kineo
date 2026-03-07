@@ -1,28 +1,37 @@
 import os
 from pathlib import Path
 
+# load_dotenv читає змінні оточення з файлу .env
+# Це зручно, щоб тримати секрети поза git.
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+# Підтягуємо змінні з .env, щоб не хардкодити секрети в коді
 load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-fallback")
 DEBUG = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")
+# Можна передати кілька хостів через кому в .env
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
 INSTALLED_APPS = [
+    # Базові django-додатки (адмінка, авторизація, сесії тощо)
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # DRF для API
     "rest_framework",
+    # CORS для запитів з фронтенду (інший домен/порт)
     "corsheaders",
+    # Наш основний застосунок
     "kineo",
 ]
 
 MIDDLEWARE = [
+    # Порядок middleware важливий, бо вони обробляються зверху вниз.
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -56,6 +65,7 @@ WSGI_APPLICATION = "kineo_project.wsgi.application"
 
 DATABASES = {
     "default": {
+        # Для локальної розробки використовується SQLite файл
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
@@ -86,10 +96,13 @@ LOGIN_REDIRECT_URL = "movie_list"
 LOGOUT_REDIRECT_URL = "movie_list"
 
 CORS_ALLOW_ALL_ORIGINS = True
+# Для dev це зручно, але для production краще вказати конкретні домени.
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        # Токенна авторизація через JWT
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
+    # За замовчуванням доступ відкритий, а обмеження задаються у view/permissions
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
 }

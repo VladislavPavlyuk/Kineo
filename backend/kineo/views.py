@@ -1,10 +1,12 @@
 from rest_framework import viewsets, status
+# action дозволяє створювати кастомні endpoint-и всередині ViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
 
+# Імпортуємо тільки потрібні моделі
 from .models import UserProfile, Review
 from .serializers import (
     StudioSerializer,
@@ -24,6 +26,7 @@ from .permissions import (
 
 
 class StudioViewSet(viewsets.ReadOnlyModelViewSet):
+    # ReadOnlyModelViewSet: доступні тільки list/retrieve (без create/update/delete)
     serializer_class = StudioSerializer
 
     def get_queryset(self):
@@ -31,6 +34,7 @@ class StudioViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class MovieViewSet(viewsets.ModelViewSet):
+    # ModelViewSet дає повний CRUD, а хто що може робити - у permission_classes
     serializer_class = MovieSerializer
     permission_classes = [MoviePermissions]
 
@@ -39,6 +43,7 @@ class MovieViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"])
     def sessions(self, request, pk=None):
+        # detail=True означає маршрут виду /movies/<id>/sessions/
         movie = self.get_object()
         sessions = SessionService.get_upcoming(movie_id=movie.id)
         return Response(SessionSerializer(sessions, many=True).data)
@@ -49,16 +54,19 @@ class MovieViewSet(viewsets.ModelViewSet):
         if request.method == "GET":
             reviews = ReviewService.get_for_movie(movie.id)
             return Response(ReviewSerializer(reviews, many=True).data)
+        # Додавати відгук може тільки авторизований користувач з роллю client
         if not request.user.is_authenticated or not is_client(request.user):
             return Response(
                 {"detail": "Тільки клієнти можуть додавати відгуки"},
                 status=status.HTTP_403_FORBIDDEN,
             )
+        # Не даємо створити другий відгук на той самий фільм
         if Review.objects.filter(movie=movie, user=request.user).exists():
             return Response(
                 {"detail": "You have already reviewed this movie"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        # Беремо дані з request, але movie/user підставляємо з бекенду для безпеки
         data = {**request.data, "movie": movie.id, "user": request.user.id}
         serializer = ReviewSerializer(data=data)
         if serializer.is_valid():
@@ -72,6 +80,7 @@ class SessionViewSet(viewsets.ModelViewSet):
     permission_classes = [SessionPermissions]
 
     def get_queryset(self):
+        # Якщо movie є в query params, повертаємо сеанси лише для цього фільму
         movie_id = self.request.query_params.get("movie")
         return SessionService.get_upcoming(movie_id=movie_id)
 
@@ -81,6 +90,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     permission_classes = [ReviewPermissions]
 
     def get_queryset(self):
+        # Тут така сама фільтрація по movie, як і для сеансів
         movie_id = self.request.query_params.get("movie")
         return ReviewService.get_all(movie_id=movie_id)
 
@@ -90,7 +100,9 @@ class MeView(APIView):
 
     def get(self, request):
         user = request.user
+        # Створюємо профіль автоматично, якщо користувач зайшов вперше
         profile, _ = UserProfile.objects.get_or_create(user=user)
+        # Формуємо відповідь вручну, щоб повернути і user, і profile в одному JSON
         data = {
             "id": user.id,
             "username": user.username,
@@ -101,6 +113,7 @@ class MeView(APIView):
         return Response(data)
 
     def patch(self, request):
+        # Та сама ідея: перед оновленням профіль має існувати
         profile, _ = UserProfile.objects.get_or_create(user=request.user)
         serializer = UserProfileSerializer(profile, data=request.data, partial=True)
         if serializer.is_valid():
@@ -110,6 +123,7 @@ class MeView(APIView):
 
 
 class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
+    # queryset тут по User, бо URL виглядає як /api/users/<id>/
     queryset = User.objects.all()
     serializer_class = UserBriefSerializer
     permission_classes = [AllowAny]
