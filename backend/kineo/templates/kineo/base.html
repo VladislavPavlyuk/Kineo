@@ -12,15 +12,42 @@
         <header class="header">
             <a href="{% url 'movie_list' %}" class="logo">KINEO</a>
             <nav>
-                <a href="{% url 'movie_list' %}" class="hover-accent">Фільми</a>
-                <a href="{% url 'sessions_list' %}" class="hover-accent">Сеанси</a>
+                <a href="{% url 'movie_list' %}?{{ request.GET.urlencode }}" class="hover-accent">Фільми</a>
+                <a href="{% url 'sessions_list' %}?{{ request.GET.urlencode }}" class="hover-accent">Сеанси</a>
                 {% if is_staff %}
                     <a href="{% url 'movie_create' %}" class="hover-accent">Додати фільм</a>
                 {% endif %}
             </nav>
+            {% if navbar_filter_options %}
+            <form method="get" action="{{ request.path }}" class="navbar-filters" id="navbar-search">
+                <input type="search" name="q" value="{{ search_query }}" placeholder="Пошук..." class="navbar-search-input" id="navbar-search-input" autocomplete="off">
+                <select name="year" class="navbar-filter-select">
+                    <option value="">Рік</option>
+                    {% for y in navbar_filter_options.years %}
+                    <option value="{{ y }}" {% if request.GET.year == y|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+                <select name="genre" class="navbar-filter-select">
+                    <option value="">Жанр</option>
+                    {% for g in navbar_filter_options.genres %}
+                    <option value="{{ g }}" {% if request.GET.genre == g %}selected{% endif %}>{{ g }}</option>
+                    {% endfor %}
+                </select>
+                <select name="studio" class="navbar-filter-select">
+                    <option value="">Студія</option>
+                    {% for s in navbar_filter_options.studios %}
+                    <option value="{{ s.id }}" {% if request.GET.studio == s.id|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="duration_min" class="navbar-filter-input" placeholder="Хв від" value="{{ request.GET.duration_min }}" min="1" max="300" step="1">
+                <input type="number" name="duration_max" class="navbar-filter-input" placeholder="Хв до" value="{{ request.GET.duration_max }}" min="1" max="300" step="1">
+                <button type="submit" class="btn btn-secondary btn-sm">Застосувати</button>
+            </form>
+            {% else %}
             <form method="get" action="{% url 'movie_list' %}" class="navbar-search" id="navbar-search">
                 <input type="search" name="q" value="{{ search_query }}" placeholder="Пошук фільмів..." class="navbar-search-input" id="navbar-search-input" autocomplete="off">
             </form>
+            {% endif %}
             <div class="profile-menu">
                 {% if user.is_authenticated %}
                     <a href="{% url 'profile' %}" class="btn btn-secondary hover-accent">{{ user.username }}</a>

@@ -59,8 +59,12 @@ a:hover { color: var(--accent-hover); }
   border: 1px solid transparent;
 }
 
-.navbar-search {
+.navbar-search,
+.navbar-filters {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
   margin: 0 1rem;
 }
 .navbar-search-input {
@@ -76,6 +80,19 @@ a:hover { color: var(--accent-hover); }
 .navbar-search-input::placeholder {
   color: var(--muted);
 }
+.navbar-filter-select,
+.navbar-filter-input {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.8rem;
+}
+.navbar-filter-select { min-width: 90px; }
+.navbar-filter-input { width: 70px; }
+.navbar-filter-input::placeholder { color: var(--muted); }
 
 .profile-menu {
   display: flex;

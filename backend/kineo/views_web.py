@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User, Group
 
-from .models import Movie, Session, Review, UserProfile
+from .models import Movie, Session, Review, UserProfile, Studio
 from .forms import MovieForm, SessionForm, ReviewForm, RegisterForm, ProfileForm, LoginForm
 from .services.schedule_generator import generate_month_schedule
 
@@ -32,7 +32,14 @@ def _sqlite_unicode_lower():
         conn.create_function("LOWER", 1, lambda s: s.lower() if s is not None else "")
 
 
-def movie_list(request):
+def _get_navbar_filter_options():
+    genres = list(Movie.objects.values_list("genre", flat=True).distinct().order_by("genre"))
+    studios = list(Studio.objects.all())
+    years = list(Movie.objects.values_list("year", flat=True).distinct().order_by("-year"))
+    return {"genres": genres, "studios": studios, "years": years}
+
+
+def _get_movie_filter_queryset(request):
     movies = Movie.objects.all()
     q = request.GET.get("q", "").strip()
     if q:
@@ -53,7 +60,35 @@ def movie_list(request):
         if len(q) == 4 and q.isdigit():
             q_filter |= Q(year=int(q))
         movies = movies.filter(q_filter)
-    return render(request, "kineo/movie_list.html", {"movies": movies, "search_query": q})
+    year = request.GET.get("year", "").strip()
+    if year and year.isdigit():
+        movies = movies.filter(year=int(year))
+    genre = request.GET.get("genre", "").strip()
+    if genre:
+        movies = movies.filter(genre__iexact=genre)
+    studio_id = request.GET.get("studio", "").strip()
+    if studio_id and studio_id.isdigit():
+        movies = movies.filter(studio_id=int(studio_id))
+    duration_min = request.GET.get("duration_min", "").strip()
+    if duration_min and duration_min.isdigit():
+        movies = movies.filter(duration__gte=int(duration_min))
+    duration_max = request.GET.get("duration_max", "").strip()
+    if duration_max and duration_max.isdigit():
+        movies = movies.filter(duration__lte=int(duration_max))
+    return movies
+
+
+def movie_list(request):
+    movies = _get_movie_filter_queryset(request)
+    return render(
+        request,
+        "kineo/movie_list.html",
+        {
+            "movies": movies,
+            "search_query": request.GET.get("q", "").strip(),
+            "navbar_filter_options": _get_navbar_filter_options(),
+        },
+    )
 
 
 def movie_detail(request, pk):
@@ -123,10 +158,24 @@ def movie_delete(request, pk):
 
 
 def sessions_list(request):
-    sessions = Session.objects.filter(
-        date__gte=timezone.now()
-    ).select_related("movie").order_by("date")
-    return render(request, "kineo/sessions_list.html", {"sessions": sessions})
+    movies_filtered = _get_movie_filter_queryset(request)
+    sessions = (
+        Session.objects.filter(
+            date__gte=timezone.now(),
+            movie__in=movies_filtered,
+        )
+        .select_related("movie")
+        .order_by("date")
+    )
+    return render(
+        request,
+        "kineo/sessions_list.html",
+        {
+            "sessions": sessions,
+            "is_staff": _is_staff(request.user),
+            "navbar_filter_options": _get_navbar_filter_options(),
+        },
+    )
 
 
 @login_required
