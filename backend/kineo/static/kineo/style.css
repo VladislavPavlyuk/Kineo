@@ -362,7 +362,8 @@ a:hover { color: var(--accent-hover); }
 .form-actions { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
 
 .sessions-tab { padding: 2rem; }
-.sessions-tab h1 { margin-bottom: 1.5rem; }
+.sessions-tab h1 { margin-bottom: 1rem; }
+.schedule-generate-form { margin-bottom: 1.5rem; }
 
 .sessions-list { display: flex; flex-direction: column; gap: 0.75rem; }
 

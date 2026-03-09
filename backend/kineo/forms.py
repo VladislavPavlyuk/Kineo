@@ -10,6 +10,14 @@ class MovieForm(forms.ModelForm):
     class Meta:
         model = Movie
         fields = ["title", "description", "year", "duration", "genre", "poster"]
+        labels = {
+            "title": "Назва",
+            "description": "Опис",
+            "year": "Рік",
+            "duration": "Тривалість (хв)",
+            "genre": "Жанр",
+            "poster": "Постер",
+        }
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4}),
         }
@@ -19,6 +27,10 @@ class SessionForm(forms.ModelForm):
     class Meta:
         model = Session
         fields = ["date", "hall_number"]
+        labels = {
+            "date": "Дата та час",
+            "hall_number": "Номер залу",
+        }
         widgets = {
             "date": forms.DateTimeInput(attrs={"type": "datetime-local"}),
         }
@@ -28,6 +40,10 @@ class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
         fields = ["text", "rating"]
+        labels = {
+            "text": "Текст відгуку",
+            "rating": "Оцінка",
+        }
         widgets = {
             "text": forms.Textarea(attrs={"rows": 3}),
             "rating": forms.Select(choices=[(i, f"{i} ★") for i in range(1, 6)]),

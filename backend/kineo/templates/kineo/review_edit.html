@@ -1,16 +1,16 @@
 {% extends "kineo/base.html" %}
 
-{% block title %}Edit review - KINEO{% endblock %}
+{% block title %}Редагувати відгук - KINEO{% endblock %}
 
 {% block content %}
 <section class="movie-form-section">
-    <h1>Edit review</h1>
+    <h1>Редагувати відгук</h1>
     <form method="post" class="movie-form">
         {% csrf_token %}
         {{ form.as_p }}
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a href="{% url 'movie_detail' review.movie_id %}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Зберегти</button>
+            <a href="{% url 'movie_detail' review.movie_id %}" class="btn btn-secondary">Скасувати</a>
         </div>
     </form>
 </section>

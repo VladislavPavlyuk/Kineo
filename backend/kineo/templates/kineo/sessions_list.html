@@ -1,10 +1,16 @@
 {% extends "kineo/base.html" %}
 
-{% block title %}Sessions - KINEO{% endblock %}
+{% block title %}Сеанси - KINEO{% endblock %}
 
 {% block content %}
 <section class="sessions-tab">
-    <h1>Upcoming sessions</h1>
+    <h1>Майбутні сеанси</h1>
+    {% if is_staff and not sessions %}
+    <form method="post" action="{% url 'schedule_generate' %}" class="schedule-generate-form">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Згенерувати розклад</button>
+    </form>
+    {% endif %}
     {% if sessions %}
     <div class="sessions-list">
         {% for s in sessions %}
@@ -12,13 +18,13 @@
             <div class="session-movie">{{ s.movie.title }}</div>
             <div class="session-details">
                 <span class="date">{{ s.date|date:"D, d M, H:i" }}</span>
-                <span class="hall">Hall {{ s.hall_number }}</span>
+                <span class="hall">Зал {{ s.hall_number }}</span>
             </div>
         </a>
         {% endfor %}
     </div>
     {% else %}
-    <p class="empty">No upcoming sessions</p>
+    <p class="empty">Немає майбутніх сеансів</p>
     {% endif %}
 </section>
 {% endblock %}

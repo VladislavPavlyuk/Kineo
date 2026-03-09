@@ -12,14 +12,14 @@
         <header class="header">
             <a href="{% url 'movie_list' %}" class="logo">KINEO</a>
             <nav>
-                <a href="{% url 'movie_list' %}" class="hover-accent">Movies</a>
-                <a href="{% url 'sessions_list' %}" class="hover-accent">Sessions</a>
+                <a href="{% url 'movie_list' %}" class="hover-accent">Фільми</a>
+                <a href="{% url 'sessions_list' %}" class="hover-accent">Сеанси</a>
                 {% if is_staff %}
-                    <a href="{% url 'movie_create' %}" class="hover-accent">Add movie</a>
+                    <a href="{% url 'movie_create' %}" class="hover-accent">Додати фільм</a>
                 {% endif %}
             </nav>
             <form method="get" action="{% url 'movie_list' %}" class="navbar-search" id="navbar-search">
-                <input type="search" name="q" value="{{ search_query }}" placeholder="Search movies..." class="navbar-search-input" id="navbar-search-input" autocomplete="off">
+                <input type="search" name="q" value="{{ search_query }}" placeholder="Пошук фільмів..." class="navbar-search-input" id="navbar-search-input" autocomplete="off">
             </form>
             <div class="profile-menu">
                 {% if user.is_authenticated %}

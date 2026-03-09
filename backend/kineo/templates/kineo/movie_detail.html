@@ -9,20 +9,20 @@
             {% if movie.poster %}
                 <img src="{{ movie.poster.url }}" alt="{{ movie.title }}">
             {% else %}
-                <div class="poster-placeholder">No poster</div>
+                <div class="poster-placeholder">Немає постеру</div>
             {% endif %}
         </div>
         <div class="detail-info">
             <h1>{{ movie.title }}</h1>
-            <p class="meta">{{ movie.year }} · {{ movie.genre }} · {{ movie.duration }} min</p>
-            <p class="description">{{ movie.description|default:"No description" }}</p>
+            <p class="meta">{{ movie.year }} · {{ movie.genre }} · {{ movie.duration }} хв</p>
+            <p class="description">{{ movie.description|default:"Немає опису" }}</p>
             {% if is_staff %}
             <div class="actions">
-                <a href="{% url 'movie_edit' movie.pk %}" class="btn btn-primary">Edit</a>
+                <a href="{% url 'movie_edit' movie.pk %}" class="btn btn-primary">Редагувати</a>
                 <form method="post" action="{% url 'movie_delete' movie.pk %}" style="display:inline;"
-                      onsubmit="return confirm('Delete movie?');">
+                      onsubmit="return confirm('Видалити фільм?');">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <button type="submit" class="btn btn-danger">Видалити</button>
                 </form>
             </div>
             {% endif %}
@@ -30,42 +30,42 @@
     </div>
 
     <div class="movie-sessions">
-        <h2>Sessions</h2>
+        <h2>Сеанси</h2>
         {% if is_staff %}
-        <a href="{% url 'session_create' movie.pk %}" class="btn btn-primary">Add session</a>
+        <a href="{% url 'session_create' movie.pk %}" class="btn btn-primary">Додати сеанс</a>
         {% endif %}
         {% if sessions %}
         <ul>
             {% for s in sessions %}
             <li>
                 <span class="date">{{ s.date|date:"d F, H:i" }}</span>
-                <span class="hall">Hall {{ s.hall_number }}</span>
+                <span class="hall">Зал {{ s.hall_number }}</span>
             </li>
             {% endfor %}
         </ul>
         {% else %}
-        <p class="empty">No upcoming sessions</p>
+        <p class="empty">Немає майбутніх сеансів</p>
         {% endif %}
     </div>
 
     <div class="movie-reviews">
-        <h2>Reviews</h2>
+        <h2>Відгуки</h2>
         {% if is_client and not user_review %}
         <form method="post" action="{% url 'review_create' movie.pk %}" class="review-form">
             {% csrf_token %}
-            <textarea name="text" rows="3" placeholder="Review text" required></textarea>
+            <textarea name="text" rows="3" placeholder="Текст відгуку" required></textarea>
             <div class="rating-row">
-                <label>Rating:</label>
+                <label>Оцінка:</label>
                 <select name="rating">
                     {% for i in "12345" %}
                     <option value="{{ forloop.counter }}">{{ forloop.counter }} ★</option>
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Add review</button>
+            <button type="submit" class="btn btn-primary">Додати відгук</button>
         </form>
         {% elif not user.is_authenticated %}
-        <p class="hint">Log in as client to leave a review</p>
+        <p class="hint">Увійдіть як клієнт, щоб залишити відгук</p>
         {% endif %}
 
         <div class="reviews-list">
@@ -79,25 +79,25 @@
                 <p>{{ r.text }}</p>
                 {% if user.is_authenticated and r.user_id == user.id %}
                 <div class="review-actions">
-                    <a href="{% url 'review_edit' r.pk %}" class="btn btn-link btn-sm">Edit</a>
+                    <a href="{% url 'review_edit' r.pk %}" class="btn btn-link btn-sm">Редагувати</a>
                     <form method="post" action="{% url 'review_delete' r.pk %}" style="display:inline;"
-                          onsubmit="return confirm('Delete review?');">
+                          onsubmit="return confirm('Видалити відгук?');">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-link btn-sm danger">Delete</button>
+                        <button type="submit" class="btn btn-link btn-sm danger">Видалити</button>
                     </form>
                 </div>
                 {% elif is_staff %}
                 <div class="review-actions">
                     <form method="post" action="{% url 'review_delete' r.pk %}" style="display:inline;"
-                          onsubmit="return confirm('Delete review?');">
+                          onsubmit="return confirm('Видалити відгук?');">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-link btn-sm danger">Delete</button>
+                        <button type="submit" class="btn btn-link btn-sm danger">Видалити</button>
                     </form>
                 </div>
                 {% endif %}
             </div>
             {% empty %}
-            <p class="empty">No reviews yet</p>
+            <p class="empty">Ще немає відгуків</p>
             {% endfor %}
         </div>
     </div>

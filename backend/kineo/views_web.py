@@ -11,6 +11,7 @@ from django.contrib.auth.models import User, Group
 
 from .models import Movie, Session, Review, UserProfile
 from .forms import MovieForm, SessionForm, ReviewForm, RegisterForm, ProfileForm, LoginForm
+from .services.schedule_generator import generate_month_schedule
 
 
 def _is_staff(user):
@@ -126,6 +127,17 @@ def sessions_list(request):
         date__gte=timezone.now()
     ).select_related("movie").order_by("date")
     return render(request, "kineo/sessions_list.html", {"sessions": sessions})
+
+
+@login_required
+@require_http_methods(["POST"])
+def schedule_generate(request):
+    if not _is_staff(request.user):
+        messages.error(request, "Доступ заборонено")
+        return redirect("sessions_list")
+    created = generate_month_schedule()
+    messages.success(request, f"Розклад згенеровано. Додано сеансів: {created}.")
+    return redirect("sessions_list")
 
 
 @login_required
