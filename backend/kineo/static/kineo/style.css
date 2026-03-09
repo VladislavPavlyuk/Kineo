@@ -59,6 +59,24 @@ a:hover { color: var(--accent-hover); }
   border: 1px solid transparent;
 }
 
+.navbar-search {
+  display: flex;
+  margin: 0 1rem;
+}
+.navbar-search-input {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  width: 180px;
+}
+.navbar-search-input::placeholder {
+  color: var(--muted);
+}
+
 .profile-menu {
   display: flex;
   gap: 0.5rem;
@@ -88,6 +106,22 @@ a:hover { color: var(--accent-hover); }
 
 .list-view { padding: 2rem; }
 .list-view h1 { margin-bottom: 1.5rem; font-size: 1.75rem; }
+
+.search-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.search-input {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  min-width: 200px;
+}
 
 .movie-grid {
   display: grid;

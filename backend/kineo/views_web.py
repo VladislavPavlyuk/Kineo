@@ -1,3 +1,5 @@
+from django.db.models import Q
+from django.db.models.functions import Lower
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -19,9 +21,38 @@ def _is_client(user):
     return user.is_authenticated and user.groups.filter(name="Clients").exists()
 
 
+def _sqlite_unicode_lower():
+    from django.db import connection
+    if connection.vendor != "sqlite":
+        return
+    connection.ensure_connection()
+    conn = getattr(connection, "connection", None)
+    if conn is not None:
+        conn.create_function("LOWER", 1, lambda s: s.lower() if s is not None else "")
+
+
 def movie_list(request):
     movies = Movie.objects.all()
-    return render(request, "kineo/movie_list.html", {"movies": movies})
+    q = request.GET.get("q", "").strip()
+    if q:
+        _sqlite_unicode_lower()
+        q_lo = q.lower()
+        movies = movies.annotate(
+            _title_lo=Lower("title"),
+            _desc_lo=Lower("description"),
+            _genre_lo=Lower("genre"),
+            _studio_lo=Lower("studio__name"),
+        )
+        q_filter = (
+            Q(_title_lo__contains=q_lo)
+            | Q(_desc_lo__contains=q_lo)
+            | Q(_genre_lo__contains=q_lo)
+            | Q(_studio_lo__contains=q_lo)
+        )
+        if len(q) == 4 and q.isdigit():
+            q_filter |= Q(year=int(q))
+        movies = movies.filter(q_filter)
+    return render(request, "kineo/movie_list.html", {"movies": movies, "search_query": q})
 
 
 def movie_detail(request, pk):
