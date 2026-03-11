@@ -8,6 +8,8 @@ from django.contrib import messages
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User, Group
+from django.conf import settings
+import os
 
 from .models import Movie, Session, Review, UserProfile, Studio
 from .forms import MovieForm, SessionForm, ReviewForm, RegisterForm, ProfileForm, LoginForm
@@ -37,6 +39,23 @@ def _get_navbar_filter_options():
     studios = list(Studio.objects.all())
     years = list(Movie.objects.values_list("year", flat=True).distinct().order_by("-year"))
     return {"genres": genres, "studios": studios, "years": years}
+
+
+def _get_avatar_library():
+    avatars_dir = os.path.join(settings.MEDIA_ROOT, "avatars")
+    if not os.path.isdir(avatars_dir):
+        return []
+    allowed_ext = (".png", ".jpg", ".jpeg", ".webp", ".gif")
+    avatars = []
+    for filename in sorted(os.listdir(avatars_dir)):
+        if filename.lower().endswith(allowed_ext):
+            avatars.append(
+                {
+                    "name": filename,
+                    "url": f"{settings.MEDIA_URL}avatars/{filename}",
+                }
+            )
+    return avatars
 
 
 def _get_movie_filter_queryset(request):
@@ -95,6 +114,18 @@ def movie_detail(request, pk):
     movie = get_object_or_404(Movie, pk=pk)
     sessions = movie.sessions.filter(date__gte=timezone.now()).order_by("date")
     reviews = movie.reviews.select_related("user").all()
+    reviewer_ids = list(reviews.values_list("user_id", flat=True))
+    if reviewer_ids:
+        existing_profiles = set(
+            UserProfile.objects.filter(user_id__in=reviewer_ids).values_list("user_id", flat=True)
+        )
+        missing_ids = [uid for uid in reviewer_ids if uid not in existing_profiles]
+        if missing_ids:
+            UserProfile.objects.bulk_create(
+                [UserProfile(user_id=uid) for uid in missing_ids],
+                ignore_conflicts=True,
+            )
+    reviews = movie.reviews.select_related("user", "user__profile").all()
     user_review = None
     if request.user.is_authenticated:
         user_review = reviews.filter(user=request.user).first()
@@ -218,6 +249,7 @@ def review_create(request, movie_id):
     if Review.objects.filter(movie=movie, user=request.user).exists():
         messages.error(request, "You have already reviewed this movie")
         return redirect("movie_detail", pk=movie_id)
+    UserProfile.objects.get_or_create(user=request.user)
     form = ReviewForm(request.POST)
     if form.is_valid():
         review = form.save(commit=False)
@@ -297,15 +329,36 @@ def logout_view(request):
 @login_required
 def profile_view(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    avatars = _get_avatar_library()
     if request.method == "POST":
-        form = ProfileForm(request.POST, instance=profile)
+        username = request.POST.get("username", "").strip()
+        if username:
+            if username != request.user.username and User.objects.filter(username=username).exists():
+                messages.error(request, "User with this username already exists")
+                form = ProfileForm(instance=profile)
+                return render(request, "kineo/profile.html", {"form": form, "avatars": avatars})
+            if username != request.user.username:
+                request.user.username = username
+                request.user.save(update_fields=["username"])
+        avatar_filename = request.POST.get("avatar_filename", "").strip()
+        if avatar_filename:
+            avatar_names = {avatar["name"] for avatar in avatars}
+            if avatar_filename in avatar_names:
+                profile.photo.name = f"avatars/{avatar_filename}"
+                profile.save(update_fields=["photo"])
+                messages.success(request, "Avatar updated")
+                return redirect("profile")
+            messages.error(request, "Invalid avatar selection")
+            form = ProfileForm(instance=profile)
+            return render(request, "kineo/profile.html", {"form": form, "avatars": avatars})
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
             messages.success(request, "Profile updated")
             return redirect("profile")
     else:
         form = ProfileForm(instance=profile)
-    return render(request, "kineo/profile.html", {"form": form})
+    return render(request, "kineo/profile.html", {"form": form, "avatars": avatars})
 
 
 def user_profile_view(request, pk):

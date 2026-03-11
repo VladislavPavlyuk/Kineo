@@ -82,5 +82,12 @@ class LoginForm(AuthenticationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ["bio", "phone"]
-        widgets = {"bio": forms.Textarea(attrs={"rows": 4})}
+        fields = ["bio", "phone", "photo"]
+        widgets = {
+            "bio": forms.Textarea(attrs={"rows": 4, "placeholder": "Де кілька слів про себе ..."}),
+            "phone": forms.TextInput(attrs={"placeholder": "Залишить свій номер телефона..."}),
+            "photo": forms.FileInput(),
+        }
+        labels = {
+            "photo": "Update photo",
+        }

@@ -6,18 +6,167 @@
 <section class="profile-page">
     <h1>My profile</h1>
     <div class="profile-card">
-                <div class="profile-details">
-            <h2>{{ user.username }}</h2>
+        <div class="profile-details">
             {% if user.groups.all %}
             <p class="profile-group">Група: {{ user.groups.all|join:", " }}</p>
             {% endif %}
             <p class="profile-email">{{ user.email }}</p>
-            <form method="post" class="profile-form">
+            <form method="post" enctype="multipart/form-data" class="profile-form">
                 {% csrf_token %}
-                {{ form.as_p }}
+                {% if form.non_field_errors %}
+                    <div class="errorlist">{{ form.non_field_errors }}</div>
+                {% endif %}
+                <div class="profile-username">
+                    <button type="button" class="username-display" id="username-display">{{ user.username }}</button>
+                    <input type="text" name="username" id="username-input" class="username-input" value="{{ user.username }}" autocomplete="username">
+                </div>
+                <div class="avatar-row">
+                    <button type="button" class="profile-photo profile-photo-button" id="open-avatar-modal">
+                        {% if form.instance.photo %}
+                            <img id="profile-avatar-preview" src="{{ form.instance.photo.url }}" alt="{{ user.username }}">
+                        {% else %}
+                            <div id="profile-avatar-preview" class="avatar-placeholder">No photo</div>
+                        {% endif %}
+                    </button>
+                    <label class="btn btn-secondary file-btn">
+                        {{ form.photo.label }}
+                        <input type="file" name="{{ form.photo.name }}" id="{{ form.photo.id_for_label }}" accept="image/*">
+                    </label>
+                </div>
+                <p>
+                    {{ form.bio }}
+                    {{ form.bio.errors }}
+                </p>
+                <p>
+                    {{ form.phone }}
+                    {{ form.phone.errors }}
+                </p>
+                {{ form.photo.errors }}
                 <button type="submit" class="btn btn-primary">Save</button>
             </form>
         </div>
     </div>
 </section>
+
+<div class="modal-overlay" id="avatar-modal" aria-hidden="true">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Choose avatar</h3>
+            <button type="button" class="btn btn-secondary" id="close-avatar-modal">Close</button>
+        </div>
+        <div class="avatar-grid">
+            {% for avatar in avatars %}
+                <button type="button" class="avatar-item" data-avatar-name="{{ avatar.name }}" data-avatar-url="{{ avatar.url }}">
+                    <img src="{{ avatar.url }}" alt="{{ avatar.name }}">
+                </button>
+            {% empty %}
+                <p class="empty">No avatars found in /media/avatars</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<form method="post" class="avatar-submit-form" id="avatar-submit-form">
+    {% csrf_token %}
+    <input type="hidden" name="avatar_filename" id="avatar-filename-input" value="">
+</form>
+
+<script>
+  (function () {
+    var modal = document.getElementById("avatar-modal");
+    var openBtn = document.getElementById("open-avatar-modal");
+    var closeBtn = document.getElementById("close-avatar-modal");
+    var submitForm = document.getElementById("avatar-submit-form");
+    var filenameInput = document.getElementById("avatar-filename-input");
+    var preview = document.getElementById("profile-avatar-preview");
+    var fileInput = document.getElementById("{{ form.photo.id_for_label }}");
+    var usernameDisplay = document.getElementById("username-display");
+    var usernameInput = document.getElementById("username-input");
+    if (!modal || !openBtn || !closeBtn) { return; }
+    function openModal() {
+      modal.classList.add("open");
+      modal.setAttribute("aria-hidden", "false");
+    }
+    function closeModal() {
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+    }
+    openBtn.addEventListener("click", openModal);
+    closeBtn.addEventListener("click", closeModal);
+    modal.addEventListener("click", function (event) {
+      if (event.target === modal) { closeModal(); }
+    });
+    modal.addEventListener("click", function (event) {
+      var item = event.target.closest(".avatar-item");
+      if (!item) { return; }
+      var name = item.getAttribute("data-avatar-name");
+      var url = item.getAttribute("data-avatar-url");
+      if (!name || !url) { return; }
+      if (preview) {
+        if (preview.tagName === "IMG") {
+          preview.src = url;
+        } else {
+          var img = document.createElement("img");
+          img.id = "profile-avatar-preview";
+          img.src = url;
+          img.alt = "{{ user.username }}";
+          preview.replaceWith(img);
+          preview = img;
+        }
+      }
+      if (filenameInput && submitForm) {
+        filenameInput.value = name;
+        submitForm.submit();
+      }
+    });
+    if (fileInput) {
+      fileInput.addEventListener("change", function () {
+        if (!fileInput.files || !fileInput.files.length) { return; }
+        var url = URL.createObjectURL(fileInput.files[0]);
+        if (preview) {
+          if (preview.tagName === "IMG") {
+            preview.src = url;
+          } else {
+            var img = document.createElement("img");
+            img.id = "profile-avatar-preview";
+            img.src = url;
+            img.alt = "{{ user.username }}";
+            preview.replaceWith(img);
+            preview = img;
+          }
+        }
+      });
+    }
+    if (usernameDisplay && usernameInput) {
+      usernameInput.style.display = "none";
+      usernameDisplay.addEventListener("click", function () {
+        usernameDisplay.style.display = "none";
+        usernameInput.style.display = "inline-block";
+        usernameInput.focus();
+        usernameInput.select();
+      });
+      function commitUsername() {
+        if (usernameInput.value.trim() === "") {
+          usernameInput.value = usernameDisplay.textContent.trim();
+        }
+        usernameDisplay.textContent = usernameInput.value.trim();
+        usernameInput.style.display = "none";
+        usernameDisplay.style.display = "inline-block";
+      }
+      usernameInput.addEventListener("blur", commitUsername);
+      usernameInput.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          commitUsername();
+          if (usernameInput.form) {
+            usernameInput.form.submit();
+          }
+        }
+      });
+      if (usernameInput.form) {
+        usernameInput.form.addEventListener("submit", commitUsername);
+      }
+    }
+  })();
+</script>
 {% endblock %}

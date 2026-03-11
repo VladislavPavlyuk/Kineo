@@ -72,6 +72,13 @@
             {% for r in reviews %}
             <div class="review-card">
                 <div class="review-header">
+                    <div class="review-avatar">
+                        {% if r.user.profile.photo %}
+                            <img src="{{ r.user.profile.photo.url }}" alt="{{ r.user.username }}">
+                        {% else %}
+                            <div class="avatar-placeholder">No photo</div>
+                        {% endif %}
+                    </div>
                     <a href="{% url 'user_profile' r.user_id %}" class="review-author">{{ r.user.username }}</a>
                     <span class="stars">{% for i in "12345" %}{% if forloop.counter <= r.rating %}★{% endif %}{% endfor %}</span>
                     <span class="date">{{ r.created_at|date:"d F Y" }}</span>

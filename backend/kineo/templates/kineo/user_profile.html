@@ -6,6 +6,13 @@
 <section class="profile-page">
     <h1>Profile</h1>
     <div class="profile-card">
+        <div class="profile-photo">
+            {% if profile.photo %}
+                <img src="{{ profile.photo.url }}" alt="{{ profile.user.username }}">
+            {% else %}
+                <div class="avatar-placeholder">No photo</div>
+            {% endif %}
+        </div>
         <div class="profile-details">
             <h2>{{ profile.user.username }}</h2>
             {% if profile.user.groups.all %}

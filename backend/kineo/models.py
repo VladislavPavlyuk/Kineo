@@ -1,5 +1,9 @@
+import os
+
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_delete, pre_save
+from django.dispatch import receiver
 
 
 class UserProfile(models.Model):
@@ -8,6 +12,7 @@ class UserProfile(models.Model):
     )
     bio = models.TextField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
+    photo = models.ImageField(upload_to="profile_photos/", blank=True, null=True)
 
     def __str__(self):
         return str(self.user)
@@ -70,3 +75,39 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.movie.title}"
+
+
+def _is_profile_photo(file_field):
+    if not file_field or not file_field.name:
+        return False
+    normalized = file_field.name.replace("\\", "/")
+    return normalized.startswith("profile_photos/")
+
+
+def _delete_file(file_field):
+    if not file_field or not file_field.path:
+        return
+    if os.path.exists(file_field.path):
+        os.remove(file_field.path)
+
+
+@receiver(post_delete, sender=UserProfile)
+def delete_profile_photo_on_delete(sender, instance, **kwargs):
+    if _is_profile_photo(instance.photo):
+        _delete_file(instance.photo)
+
+
+@receiver(pre_save, sender=UserProfile)
+def delete_profile_photo_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return
+    try:
+        old = UserProfile.objects.get(pk=instance.pk)
+    except UserProfile.DoesNotExist:
+        return
+    if not old.photo:
+        return
+    if old.photo == instance.photo:
+        return
+    if _is_profile_photo(old.photo):
+        _delete_file(old.photo)

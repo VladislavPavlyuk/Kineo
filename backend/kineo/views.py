@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth.models import User
 
 # Імпортуємо тільки потрібні моделі
@@ -53,7 +54,9 @@ class MovieViewSet(viewsets.ModelViewSet):
         movie = self.get_object()
         if request.method == "GET":
             reviews = ReviewService.get_for_movie(movie.id)
-            return Response(ReviewSerializer(reviews, many=True).data)
+            return Response(
+                ReviewSerializer(reviews, many=True, context={"request": request}).data
+            )
         # Додавати відгук може тільки авторизований користувач з роллю client
         if not request.user.is_authenticated or not is_client(request.user):
             return Response(
@@ -67,8 +70,9 @@ class MovieViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         # Беремо дані з request, але movie/user підставляємо з бекенду для безпеки
+        UserProfile.objects.get_or_create(user=request.user)
         data = {**request.data, "movie": movie.id, "user": request.user.id}
-        serializer = ReviewSerializer(data=data)
+        serializer = ReviewSerializer(data=data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -97,6 +101,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class MeView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request):
         user = request.user
@@ -108,7 +113,7 @@ class MeView(APIView):
             "username": user.username,
             "email": user.email,
             "groups": list(user.groups.values_list("name", flat=True)),
-            "profile": UserProfileSerializer(profile).data,
+            "profile": UserProfileSerializer(profile, context={"request": request}).data,
         }
         return Response(data)
 
@@ -118,7 +123,9 @@ class MeView(APIView):
         serializer = UserProfileSerializer(profile, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(
+                UserProfileSerializer(profile, context={"request": request}).data
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -131,4 +138,4 @@ class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         user = self.get_object()
         profile, _ = UserProfile.objects.get_or_create(user=user)
-        return Response(UserProfileSerializer(profile).data)
+        return Response(UserProfileSerializer(profile, context={"request": request}).data)

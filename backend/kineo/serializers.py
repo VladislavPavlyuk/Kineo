@@ -12,7 +12,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["id", "user_id", "username", "email", "bio", "phone"]
+        fields = ["id", "user_id", "username", "email", "bio", "phone", "photo"]
         read_only_fields = ["user_id", "username", "email"]
 
 
@@ -62,15 +62,32 @@ class ReviewSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
     user_id = serializers.IntegerField(source="user.id", read_only=True)
     user_profile_url = serializers.SerializerMethodField()
+    user_photo = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
         fields = [
             "id", "movie", "user", "user_id", "username", "user_profile_url",
-            "text", "rating", "created_at"
+            "user_photo", "text", "rating", "created_at"
         ]
-        read_only_fields = ["created_at", "user", "user_id", "username", "user_profile_url"]
+        read_only_fields = [
+            "created_at",
+            "user",
+            "user_id",
+            "username",
+            "user_profile_url",
+            "user_photo",
+        ]
 
     def get_user_profile_url(self, obj):
         # Формуємо посилання на профіль автора відгуку
         return f"/api/users/{obj.user_id}/"
+
+    def get_user_photo(self, obj):
+        profile = getattr(obj.user, "profile", None)
+        if not profile or not profile.photo:
+            return None
+        request = self.context.get("request")
+        if request:
+            return request.build_absolute_uri(profile.photo.url)
+        return profile.photo.url
