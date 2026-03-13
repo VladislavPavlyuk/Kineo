@@ -13,15 +13,8 @@ import os
 
 from .models import Movie, Session, Review, UserProfile, Studio
 from .forms import MovieForm, SessionForm, ReviewForm, RegisterForm, ProfileForm, LoginForm
+from .permissions import is_staff, is_client
 from .services.schedule_generator import generate_month_schedule
-
-
-def _is_staff(user):
-    return user.is_authenticated and user.groups.filter(name="Staff").exists()
-
-
-def _is_client(user):
-    return user.is_authenticated and user.groups.filter(name="Clients").exists()
 
 
 def _sqlite_unicode_lower():
@@ -137,15 +130,15 @@ def movie_detail(request, pk):
             "sessions": sessions,
             "reviews": reviews,
             "user_review": user_review,
-            "is_staff": _is_staff(request.user),
-            "is_client": _is_client(request.user),
+            "is_staff": is_staff(request.user),
+            "is_client": is_client(request.user),
         },
     )
 
 
 @login_required
 def movie_create(request):
-    if not _is_staff(request.user):
+    if not is_staff(request.user):
         messages.error(request, "Access denied")
         return redirect("movie_list")
     if request.method == "POST":
@@ -161,7 +154,7 @@ def movie_create(request):
 
 @login_required
 def movie_edit(request, pk):
-    if not _is_staff(request.user):
+    if not is_staff(request.user):
         messages.error(request, "Access denied")
         return redirect("movie_list")
     movie = get_object_or_404(Movie, pk=pk)
@@ -179,7 +172,7 @@ def movie_edit(request, pk):
 @login_required
 @require_http_methods(["POST"])
 def movie_delete(request, pk):
-    if not _is_staff(request.user):
+    if not is_staff(request.user):
         messages.error(request, "Access denied")
         return redirect("movie_list")
     movie = get_object_or_404(Movie, pk=pk)
@@ -203,7 +196,7 @@ def sessions_list(request):
         "kineo/sessions_list.html",
         {
             "sessions": sessions,
-            "is_staff": _is_staff(request.user),
+            "is_staff": is_staff(request.user),
             "navbar_filter_options": _get_navbar_filter_options(),
         },
     )
@@ -212,7 +205,7 @@ def sessions_list(request):
 @login_required
 @require_http_methods(["POST"])
 def schedule_generate(request):
-    if not _is_staff(request.user):
+    if not is_staff(request.user):
         messages.error(request, "Доступ заборонено")
         return redirect("sessions_list")
     created = generate_month_schedule()
@@ -222,7 +215,7 @@ def schedule_generate(request):
 
 @login_required
 def session_create(request, movie_id):
-    if not _is_staff(request.user):
+    if not is_staff(request.user):
         messages.error(request, "Access denied")
         return redirect("movie_list")
     movie = get_object_or_404(Movie, pk=movie_id)
@@ -242,7 +235,7 @@ def session_create(request, movie_id):
 @login_required
 @require_http_methods(["POST"])
 def review_create(request, movie_id):
-    if not _is_client(request.user):
+    if not is_client(request.user):
         messages.error(request, "Only clients can add reviews")
         return redirect("movie_detail", pk=movie_id)
     movie = get_object_or_404(Movie, pk=movie_id)
@@ -284,7 +277,7 @@ def review_edit(request, pk):
 def review_delete(request, pk):
     review = get_object_or_404(Review, pk=pk)
     movie_id = review.movie_id
-    if review.user_id != request.user.id and not _is_staff(request.user):
+    if review.user_id != request.user.id and not is_staff(request.user):
         messages.error(request, "Access denied")
         return redirect("movie_detail", pk=movie_id)
     review.delete()

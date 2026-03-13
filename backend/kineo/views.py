@@ -7,7 +7,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth.models import User
 
-# Імпортуємо тільки потрібні моделі
 from .models import UserProfile, Review
 from .serializers import (
     StudioSerializer,
