@@ -14,13 +14,28 @@
     {% if sessions %}
     <div class="sessions-list">
         {% for s in sessions %}
-        <a href="{% url 'movie_detail' s.movie_id %}" class="session-card">
-            <div class="session-movie">{{ s.movie.title }}</div>
-            <div class="session-details">
-                <span class="date">{{ s.date|date:"D, d M, H:i" }}</span>
-                <span class="hall">Зал {{ s.hall_number }}</span>
-            </div>
-        </a>
+        <div class="session-card">
+            <a href="{% url 'movie_detail' s.movie_id %}">
+                <div class="session-movie">{{ s.movie.title }}</div>
+                <div class="session-details">
+                    <span class="date">{{ s.date|date:"D, d M, H:i" }}</span>
+                    <span class="hall">Зал {{ s.hall_number }}</span>
+                </div>
+            </a>
+            {% if is_client %}
+            <form method="post" action="{% url 'session_book' s.id %}" class="session-book-form">
+                {% csrf_token %}
+                <input type="number"
+                       name="tickets"
+                       min="1"
+                       max="10"
+                       value="1"
+                       class="session-book-input"
+                       aria-label="Кількість квитків">
+                <button type="submit" class="btn btn-primary btn-sm">Забронювати</button>
+            </form>
+            {% endif %}
+        </div>
         {% endfor %}
     </div>
     {% else %}

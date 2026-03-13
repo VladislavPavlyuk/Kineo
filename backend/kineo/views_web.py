@@ -11,8 +11,16 @@ from django.contrib.auth.models import User, Group
 from django.conf import settings
 import os
 
-from .models import Movie, Session, Review, UserProfile, Studio
-from .forms import MovieForm, SessionForm, ReviewForm, RegisterForm, ProfileForm, LoginForm
+from .models import Movie, Session, Review, UserProfile, Studio, Booking
+from .forms import (
+    MovieForm,
+    SessionForm,
+    ReviewForm,
+    RegisterForm,
+    ProfileForm,
+    LoginForm,
+    BookingForm,
+)
 from .permissions import is_staff, is_client
 from .services.schedule_generator import generate_month_schedule
 
@@ -200,6 +208,90 @@ def sessions_list(request):
             "navbar_filter_options": _get_navbar_filter_options(),
         },
     )
+
+
+@login_required
+def my_bookings(request):
+    if not is_client(request.user):
+        messages.error(request, "Тільки клієнти мають сторінку бронювань")
+        return redirect("sessions_list")
+    bookings = (
+        Booking.objects.filter(user=request.user)
+        .select_related("session__movie")
+        .order_by("-created_at")
+    )
+    return render(
+        request,
+        "kineo/my_bookings.html",
+        {"bookings": bookings},
+    )
+
+
+@login_required
+@require_http_methods(["POST"])
+def session_book(request, session_id):
+    # Дозволяємо бронювання лише клієнтам.
+    if not is_client(request.user):
+        messages.error(request, "Тільки клієнти можуть бронювати квитки")
+        return redirect("sessions_list")
+    session = get_object_or_404(Session, pk=session_id)
+    form = BookingForm(request.POST)
+    if form.is_valid():
+        booking = form.save(commit=False)
+        booking.session = session
+        booking.user = request.user
+        booking.save()
+        messages.success(
+            request,
+            f"Бронювання створено на сеанс {session.movie.title} "
+            f"{session.date:%d.%m %H:%M} ({booking.tickets} квитків).",
+        )
+    else:
+        messages.error(request, form.errors.as_text())
+    return redirect("sessions_list")
+
+
+@login_required
+@require_http_methods(["POST"])
+def booking_update(request, booking_id):
+    if not is_client(request.user):
+        messages.error(request, "Тільки клієнти можуть змінювати бронювання")
+        return redirect("my_bookings")
+    booking = get_object_or_404(Booking, pk=booking_id, user=request.user)
+    form = BookingForm(request.POST, instance=booking)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Бронювання оновлено")
+    else:
+        messages.error(request, form.errors.as_text())
+    return redirect("my_bookings")
+
+
+@login_required
+@require_http_methods(["POST"])
+def booking_delete(request, booking_id):
+    if not is_client(request.user):
+        messages.error(request, "Тільки клієнти можуть видаляти бронювання")
+        return redirect("my_bookings")
+    booking = get_object_or_404(Booking, pk=booking_id, user=request.user)
+    booking.delete()
+    messages.success(request, "Бронювання видалено")
+    return redirect("my_bookings")
+
+
+@login_required
+@require_http_methods(["POST"])
+def bookings_pay(request):
+    if not is_client(request.user):
+        messages.error(request, "Тільки клієнти можуть сплачувати бронювання")
+        return redirect("sessions_list")
+    has_any = Booking.objects.filter(user=request.user).exists()
+    if not has_any:
+        messages.error(request, "Немає бронювань для оплати")
+        return redirect("my_bookings")
+    # Тут могла б бути інтеграція з платіжною системою.
+    messages.success(request, "Оплата успішна (демо).")
+    return redirect("my_bookings")
 
 
 @login_required

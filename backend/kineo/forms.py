@@ -3,7 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from .models import Movie, Session, Review, UserProfile
+from .models import Movie, Session, Review, UserProfile, Booking
 
 
 class MovieForm(forms.ModelForm):
@@ -90,4 +90,13 @@ class ProfileForm(forms.ModelForm):
         }
         labels = {
             "photo": "Update photo",
+        }
+
+
+class BookingForm(forms.ModelForm):
+    class Meta:
+        model = Booking
+        fields = ["tickets"]
+        labels = {
+            "tickets": "Кількість квитків",
         }

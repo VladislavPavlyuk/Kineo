@@ -22,6 +22,7 @@ from kineo.views_web import (
     movie_delete,
     sessions_list,
     schedule_generate,
+    session_book,
     session_create,
     review_create,
     review_edit,
@@ -30,6 +31,10 @@ from kineo.views_web import (
     profile_view,
     user_profile_view,
     logout_view,
+    my_bookings,
+    booking_update,
+    booking_delete,
+    bookings_pay,
 )
 from kineo.views_web import KineoLoginView
 
@@ -50,6 +55,7 @@ urlpatterns = [
     path("movies/<int:pk>/delete/", movie_delete, name="movie_delete"),
     path("sessions/", sessions_list, name="sessions_list"),
     path("sessions/generate/", schedule_generate, name="schedule_generate"),
+    path("sessions/<int:session_id>/book/", session_book, name="session_book"),
     path("movies/<int:movie_id>/sessions/new/", session_create, name="session_create"),
     path("movies/<int:movie_id>/reviews/", review_create, name="review_create"),
     path("reviews/<int:pk>/edit/", review_edit, name="review_edit"),
@@ -58,6 +64,10 @@ urlpatterns = [
     path("logout/", logout_view, name="logout"),
     path("register/", register_view, name="register"),
     path("profile/", profile_view, name="profile"),
+    path("bookings/", my_bookings, name="my_bookings"),
+    path("bookings/<int:booking_id>/edit/", booking_update, name="booking_update"),
+    path("bookings/<int:booking_id>/delete/", booking_delete, name="booking_delete"),
+    path("bookings/pay/", bookings_pay, name="bookings_pay"),
     path("users/<int:pk>/", user_profile_view, name="user_profile"),
     path("api/auth/token/", TokenObtainPairView.as_view()),
     path("api/auth/token/refresh/", TokenRefreshView.as_view()),

@@ -1,0 +1,51 @@
+{% extends "kineo/base.html" %}
+
+{% block title %}Мої бронювання - KINEO{% endblock %}
+
+{% block content %}
+<section class="list-view">
+    <h1>Мої бронювання</h1>
+    {% if bookings %}
+    <div class="sessions-list">
+        {% for b in bookings %}
+        <div class="session-card">
+            <div>
+                <div class="session-movie">{{ b.session.movie.title }}</div>
+                <div class="session-details">
+                    <span class="date">{{ b.session.date|date:"D, d M, H:i" }}</span>
+                    <span class="hall">Зал {{ b.session.hall_number }}</span>
+                    <span class="hall">Квитків: {{ b.tickets }}</span>
+                </div>
+            </div>
+            <div class="session-book-form">
+                <form method="post" action="{% url 'booking_update' b.id %}">
+                    {% csrf_token %}
+                    <input type="number"
+                           name="tickets"
+                           min="1"
+                           max="10"
+                           value="{{ b.tickets }}"
+                           class="session-book-input"
+                           aria-label="Кількість квитків">
+                    <button type="submit" class="btn btn-secondary btn-sm">Змінити</button>
+                </form>
+                <form method="post"
+                      action="{% url 'booking_delete' b.id %}"
+                      onsubmit="return confirm('Видалити бронювання?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm">Скасувати</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <form method="post" action="{% url 'bookings_pay' %}" style="margin-top: 1.5rem;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Сплатити</button>
+    </form>
+    {% else %}
+    <p class="empty">У вас ще немає бронювань</p>
+    {% endif %}
+</section>
+{% endblock %}
+

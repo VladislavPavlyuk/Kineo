@@ -50,6 +50,9 @@
             {% endif %}
             <div class="profile-menu">
                 {% if user.is_authenticated %}
+                    {% if is_client and has_bookings %}
+                        <a href="{% url 'my_bookings' %}" class="btn btn-secondary hover-accent">Мої бронювання</a>
+                    {% endif %}
                     <a href="{% url 'profile' %}" class="btn btn-secondary hover-accent">{{ user.username }}</a>
                     <form method="post" action="{% url 'logout' %}">
                         {% csrf_token %}
