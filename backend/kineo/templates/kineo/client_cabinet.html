@@ -1,0 +1,77 @@
+{% extends "kineo/base.html" %}
+
+{% block title %}Особистий кабінет - KINEO{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+    <h1>Особистий кабінет</h1>
+
+    <div class="detail-view">
+        <div class="movie-sessions">
+            <h2>Міні-статистика</h2>
+            <ul>
+                <li>Кількість відгуків: {{ stats.reviews_count }}</li>
+                <li>Переглянутих фільмів: {{ stats.viewed_count }}</li>
+                <li>Улюблених фільмів: {{ stats.favorites_count }}</li>
+                <li>Бронювань загалом: {{ stats.bookings_count }}</li>
+            </ul>
+        </div>
+
+        <div class="movie-reviews">
+            <h2>Мої відгуки</h2>
+            {% if reviews %}
+            <ul class="reviews-list">
+                {% for r in reviews %}
+                <li class="review-card">
+                    <div class="review-header">
+                        <span class="review-author">{{ r.movie.title }}</span>
+                        <span class="stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= r.rating %}★{% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="date">{{ r.created_at|date:"d M Y" }}</span>
+                    </div>
+                    <p>{{ r.text }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="empty">Ви ще не залишали відгуків</p>
+            {% endif %}
+        </div>
+
+        <div class="movie-sessions" style="margin-top: 1.5rem;">
+            <h2>Переглянуті фільми</h2>
+            {% if viewed_movies %}
+            <ul>
+                {% for m in viewed_movies %}
+                <li>
+                    <a href="{% url 'movie_detail' m.id %}">{{ m.title }}</a>
+                    · {{ m.year }} · {{ m.genre }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="empty">Ще немає переглянутих фільмів</p>
+            {% endif %}
+        </div>
+
+        <div class="movie-sessions" style="margin-top: 1.5rem;">
+            <h2>Улюблені фільми</h2>
+            {% if favorites %}
+            <ul>
+                {% for m in favorites %}
+                <li>
+                    <a href="{% url 'movie_detail' m.id %}">{{ m.title }}</a>
+                    · {{ m.year }} · {{ m.genre }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="empty">Ви ще не додали улюблених фільмів</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

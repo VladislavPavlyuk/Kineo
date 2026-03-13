@@ -1,0 +1,31 @@
+{% extends "kineo/base.html" %}
+
+{% block title %}Улюблені фільми - KINEO{% endblock %}
+
+{% block content %}
+<section class="list-view">
+    <h1>Улюблені фільми</h1>
+    {% if movies %}
+    <div class="movie-grid">
+        {% for m in movies %}
+        <a href="{% url 'movie_detail' m.pk %}" class="movie-card">
+            <div class="poster-wrap">
+                {% if m.poster %}
+                    <img src="{{ m.poster.url }}" alt="{{ m.title }}">
+                {% else %}
+                    <div class="poster-placeholder">Немає постеру</div>
+                {% endif %}
+            </div>
+            <div class="card-info">
+                <h3>{{ m.title }}</h3>
+                <span class="meta">{{ m.year }} · {{ m.genre }} · {{ m.duration }} хв</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty">Ще немає улюблених фільмів</p>
+    {% endif %}
+</section>
+{% endblock %}
+

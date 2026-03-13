@@ -7,19 +7,26 @@
     <h1>Фільми</h1>
     <div class="movie-grid">
         {% for m in movies %}
-        <a href="{% url 'movie_detail' m.pk %}" class="movie-card">
-            <div class="poster-wrap">
-                {% if m.poster %}
-                    <img src="{{ m.poster.url }}" alt="{{ m.title }}">
-                {% else %}
-                    <div class="poster-placeholder">Немає постеру</div>
-                {% endif %}
+        <div class="movie-card">
+            <a href="{% url 'movie_detail' m.pk %}">
+                <div class="poster-wrap">
+                    {% if m.poster %}
+                        <img src="{{ m.poster.url }}" alt="{{ m.title }}">
+                    {% else %}
+                        <div class="poster-placeholder">Немає постеру</div>
+                    {% endif %}
+                </div>
+                <div class="card-info">
+                    <h3>{{ m.title }}</h3>
+                    <span class="meta">{{ m.year }} · {{ m.genre }} · {{ m.duration }} хв</span>
+                </div>
+            </a>
+            {% if not is_staff %}
+            <div style="padding: 0 1rem 0.75rem 1rem;">
+                <a href="{% url 'movie_book' m.id %}" class="btn btn-primary btn-sm">Бронювати</a>
             </div>
-            <div class="card-info">
-                <h3>{{ m.title }}</h3>
-                <span class="meta">{{ m.year }} · {{ m.genre }} · {{ m.duration }} хв</span>
-            </div>
-        </a>
+            {% endif %}
+        </div>
         {% empty %}
         <p class="empty">Немає фільмів</p>
         {% endfor %}

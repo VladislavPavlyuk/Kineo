@@ -9,9 +9,10 @@ from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User, Group
 from django.conf import settings
+from django.urls import reverse
 import os
 
-from .models import Movie, Session, Review, UserProfile, Studio, Booking
+from .models import Movie, Session, Review, UserProfile, Studio, Booking, FavoriteMovie
 from .forms import (
     MovieForm,
     SessionForm,
@@ -130,6 +131,11 @@ def movie_detail(request, pk):
     user_review = None
     if request.user.is_authenticated:
         user_review = reviews.filter(user=request.user).first()
+        is_favorite = FavoriteMovie.objects.filter(
+            user=request.user, movie=movie
+        ).exists()
+    else:
+        is_favorite = False
     return render(
         request,
         "kineo/movie_detail.html",
@@ -140,6 +146,7 @@ def movie_detail(request, pk):
             "user_review": user_review,
             "is_staff": is_staff(request.user),
             "is_client": is_client(request.user),
+            "is_favorite": is_favorite,
         },
     )
 
@@ -191,14 +198,14 @@ def movie_delete(request, pk):
 
 def sessions_list(request):
     movies_filtered = _get_movie_filter_queryset(request)
-    sessions = (
-        Session.objects.filter(
-            date__gte=timezone.now(),
-            movie__in=movies_filtered,
-        )
-        .select_related("movie")
-        .order_by("date")
-    )
+    sessions = Session.objects.filter(
+        date__gte=timezone.now(),
+        movie__in=movies_filtered,
+    ).select_related("movie")
+    movie_param = request.GET.get("movie")
+    if movie_param and movie_param.isdigit():
+        sessions = sessions.filter(movie_id=int(movie_param))
+    sessions = sessions.order_by("date")
     return render(
         request,
         "kineo/sessions_list.html",
@@ -206,6 +213,50 @@ def sessions_list(request):
             "sessions": sessions,
             "is_staff": is_staff(request.user),
             "navbar_filter_options": _get_navbar_filter_options(),
+        },
+    )
+
+
+@login_required
+def movie_book(request, pk):
+    url = f"{reverse('sessions_list')}?movie={pk}"
+    return redirect(url)
+
+
+@login_required
+def client_cabinet(request):
+    if not is_client(request.user):
+        messages.error(request, "Особистий кабінет доступний лише для клієнтів")
+        return redirect("movie_list")
+    reviews = (
+        Review.objects.filter(user=request.user)
+        .select_related("movie")
+        .order_by("-created_at")
+    )
+    viewed_movies = (
+        Movie.objects.filter(sessions__bookings__user=request.user)
+        .distinct()
+        .order_by("-sessions__date")
+    )
+    favorites = (
+        Movie.objects.filter(favorited_by__user=request.user)
+        .distinct()
+        .order_by("title")
+    )
+    stats = {
+        "reviews_count": reviews.count(),
+        "viewed_count": viewed_movies.count(),
+        "favorites_count": favorites.count(),
+        "bookings_count": Booking.objects.filter(user=request.user).count(),
+    }
+    return render(
+        request,
+        "kineo/client_cabinet.html",
+        {
+            "reviews": reviews,
+            "viewed_movies": viewed_movies,
+            "favorites": favorites,
+            "stats": stats,
         },
     )
 
@@ -292,6 +343,34 @@ def bookings_pay(request):
     # Тут могла б бути інтеграція з платіжною системою.
     messages.success(request, "Оплата успішна (демо).")
     return redirect("my_bookings")
+
+
+@login_required
+@require_http_methods(["POST"])
+def favorite_toggle(request, movie_id):
+    movie = get_object_or_404(Movie, pk=movie_id)
+    fav_qs = FavoriteMovie.objects.filter(user=request.user, movie=movie)
+    if fav_qs.exists():
+        fav_qs.delete()
+        messages.success(request, "Фільм видалено з улюблених")
+    else:
+        FavoriteMovie.objects.get_or_create(user=request.user, movie=movie)
+        messages.success(request, "Фільм додано до улюблених")
+    return redirect("movie_detail", pk=movie_id)
+
+
+@login_required
+def my_favorites(request):
+    movies = (
+        Movie.objects.filter(favorited_by__user=request.user)
+        .distinct()
+        .order_by("title")
+    )
+    return render(
+        request,
+        "kineo/my_favorites.html",
+        {"movies": movies},
+    )
 
 
 @login_required

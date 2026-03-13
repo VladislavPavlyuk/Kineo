@@ -50,8 +50,11 @@
             {% endif %}
             <div class="profile-menu">
                 {% if user.is_authenticated %}
-                    {% if is_client and has_bookings %}
-                        <a href="{% url 'my_bookings' %}" class="btn btn-secondary hover-accent">Мої бронювання</a>
+                    {% if is_client %}
+                        <a href="{% url 'client_cabinet' %}" class="btn btn-secondary hover-accent">Кабінет</a>
+                        {% if has_bookings %}
+                            <a href="{% url 'my_bookings' %}" class="btn btn-secondary hover-accent">Мої бронювання</a>
+                        {% endif %}
                     {% endif %}
                     <a href="{% url 'profile' %}" class="btn btn-secondary hover-accent">{{ user.username }}</a>
                     <form method="post" action="{% url 'logout' %}">

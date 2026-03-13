@@ -95,6 +95,23 @@ class Booking(models.Model):
         return f"{self.user} – {self.session} ({self.tickets})"
 
 
+class FavoriteMovie(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="favorite_movies"
+    )
+    movie = models.ForeignKey(
+        Movie, on_delete=models.CASCADE, related_name="favorited_by"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [["user", "movie"]]
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user} ❤ {self.movie}"
+
+
 def _is_profile_photo(file_field):
     if not file_field or not file_field.name:
         return False

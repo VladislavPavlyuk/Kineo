@@ -16,6 +16,22 @@
             <h1>{{ movie.title }}</h1>
             <p class="meta">{{ movie.year }} · {{ movie.genre }} · {{ movie.duration }} хв</p>
             <p class="description">{{ movie.description|default:"Немає опису" }}</p>
+            {% if user.is_authenticated %}
+            <form method="post"
+                  action="{% url 'favorite_toggle' movie.id %}"
+                  style="margin-bottom: 1rem;">
+                {% csrf_token %}
+                <button type="submit"
+                        class="btn btn-secondary btn-sm">
+                    {% if is_favorite %}Видалити з улюблених{% else %}Додати до улюблених{% endif %}
+                </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'movie_book' movie.id %}"
+               class="btn btn-primary btn-sm"
+               style="margin-bottom: 1rem; display: inline-block;">
+                Бронювати
+            </a>
             {% if is_staff %}
             <div class="actions">
                 <a href="{% url 'movie_edit' movie.pk %}" class="btn btn-primary">Редагувати</a>
@@ -27,25 +43,6 @@
             </div>
             {% endif %}
         </div>
-    </div>
-
-    <div class="movie-sessions">
-        <h2>Сеанси</h2>
-        {% if is_staff %}
-        <a href="{% url 'session_create' movie.pk %}" class="btn btn-primary">Додати сеанс</a>
-        {% endif %}
-        {% if sessions %}
-        <ul>
-            {% for s in sessions %}
-            <li>
-                <span class="date">{{ s.date|date:"d F, H:i" }}</span>
-                <span class="hall">Зал {{ s.hall_number }}</span>
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p class="empty">Немає майбутніх сеансів</p>
-        {% endif %}
     </div>
 
     <div class="movie-reviews">
@@ -108,5 +105,6 @@
             {% endfor %}
         </div>
     </div>
+
 </section>
 {% endblock %}
