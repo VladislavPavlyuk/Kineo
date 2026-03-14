@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth.models import User
 
-from .models import UserProfile, Review
+from .models import UserProfile, Review, Booking, FavoriteMovie
 from .serializers import (
     StudioSerializer,
     MovieSerializer,
@@ -15,12 +15,16 @@ from .serializers import (
     ReviewSerializer,
     UserProfileSerializer,
     UserBriefSerializer,
+    BookingSerializer,
+    FavoriteMovieSerializer,
 )
 from .services import StudioService, MovieService, SessionService, ReviewService
 from .permissions import (
     MoviePermissions,
     SessionPermissions,
     ReviewPermissions,
+    BookingPermissions,
+    FavoriteMoviePermissions,
     is_client,
 )
 
@@ -129,7 +133,6 @@ class MeView(APIView):
 
 
 class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
-    # queryset тут по User, бо URL виглядає як /api/users/<id>/
     queryset = User.objects.all()
     serializer_class = UserBriefSerializer
     permission_classes = [AllowAny]
@@ -138,3 +141,30 @@ class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
         user = self.get_object()
         profile, _ = UserProfile.objects.get_or_create(user=user)
         return Response(UserProfileSerializer(profile, context={"request": request}).data)
+
+
+class BookingViewSet(viewsets.ModelViewSet):
+    serializer_class = BookingSerializer
+    permission_classes = [BookingPermissions]
+
+    def get_queryset(self):
+        return Booking.objects.filter(user=self.request.user).select_related(
+            "session", "session__movie"
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class FavoriteMovieViewSet(viewsets.ModelViewSet):
+    serializer_class = FavoriteMovieSerializer
+    permission_classes = [FavoriteMoviePermissions]
+    http_method_names = ["get", "post", "head", "delete"]
+
+    def get_queryset(self):
+        return FavoriteMovie.objects.filter(user=self.request.user).select_related(
+            "movie"
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

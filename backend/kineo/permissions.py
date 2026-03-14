@@ -62,3 +62,23 @@ class ReviewPermissions(permissions.BasePermission):
         if view.action == "destroy":
             return obj.user_id == request.user.id or is_staff(request.user)
         return False
+
+
+class BookingPermissions(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if view.action in ("list", "retrieve", "create", "update", "partial_update", "destroy"):
+            return request.user.is_authenticated and is_client(request.user)
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        return obj.user_id == request.user.id
+
+
+class FavoriteMoviePermissions(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if view.action in ("list", "retrieve", "create", "destroy"):
+            return request.user.is_authenticated
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        return obj.user_id == request.user.id

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Studio, Movie, Session, Review, UserProfile
+from .models import Studio, Movie, Session, Review, UserProfile, Booking, FavoriteMovie
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -91,3 +91,27 @@ class ReviewSerializer(serializers.ModelSerializer):
         if request:
             return request.build_absolute_uri(profile.photo.url)
         return profile.photo.url
+
+
+class BookingSerializer(serializers.ModelSerializer):
+    session_movie_title = serializers.CharField(source="session.movie.title", read_only=True)
+    session_date = serializers.DateTimeField(source="session.date", read_only=True)
+    session_hall = serializers.IntegerField(source="session.hall_number", read_only=True)
+
+    class Meta:
+        model = Booking
+        fields = [
+            "id", "session", "session_movie_title", "session_date", "session_hall",
+            "user", "tickets", "created_at",
+        ]
+        read_only_fields = ["user", "created_at"]
+
+
+class FavoriteMovieSerializer(serializers.ModelSerializer):
+    movie_title = serializers.CharField(source="movie.title", read_only=True)
+    movie_year = serializers.IntegerField(source="movie.year", read_only=True)
+
+    class Meta:
+        model = FavoriteMovie
+        fields = ["id", "user", "movie", "movie_title", "movie_year", "created_at"]
+        read_only_fields = ["user", "created_at"]

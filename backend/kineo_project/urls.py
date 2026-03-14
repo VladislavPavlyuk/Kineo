@@ -12,6 +12,8 @@ from kineo.views import (
     ReviewViewSet,
     UserProfileViewSet,
     MeView,
+    BookingViewSet,
+    FavoriteMovieViewSet,
 )
 from kineo.views_auth import RegisterView
 from kineo.views_web import (
@@ -48,6 +50,8 @@ router.register("movies", MovieViewSet, basename="movie")
 router.register("sessions", SessionViewSet, basename="session")
 router.register("reviews", ReviewViewSet, basename="review")
 router.register("users", UserProfileViewSet, basename="user")
+router.register("bookings", BookingViewSet, basename="booking")
+router.register("favorites", FavoriteMovieViewSet, basename="favoritemovie")
 
 urlpatterns = [
     path("", movie_list, name="movie_list"),
