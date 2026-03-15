@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserProfile, Studio, Movie, Session, Review
+from .models import UserProfile, Studio, Hall, Movie, Session, Review
 
 
 @admin.register(UserProfile)
@@ -12,6 +12,11 @@ class UserProfileAdmin(admin.ModelAdmin):
 @admin.register(Studio)
 class StudioAdmin(admin.ModelAdmin):
     list_display = ["name", "country"]
+
+
+@admin.register(Hall)
+class HallAdmin(admin.ModelAdmin):
+    list_display = ["name", "seats"]
 
 
 @admin.register(Movie)

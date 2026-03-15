@@ -12,7 +12,7 @@ from django.conf import settings
 from django.urls import reverse
 import os
 
-from .models import Movie, Session, Review, UserProfile, Studio, Booking, FavoriteMovie
+from .models import Movie, Session, Review, UserProfile, Studio, Booking, FavoriteMovie, Hall
 from .forms import (
     MovieForm,
     SessionForm,
@@ -21,6 +21,7 @@ from .forms import (
     ProfileForm,
     LoginForm,
     BookingForm,
+    HallForm,
 )
 from .permissions import is_staff, is_client
 from .services.schedule_generator import generate_month_schedule, plan_week_schedule
@@ -154,13 +155,13 @@ def movie_detail(request, pk):
 @login_required
 def movie_create(request):
     if not is_staff(request.user):
-        messages.error(request, "Access denied")
+        messages.error(request, "Доступ заборонено")
         return redirect("movie_list")
     if request.method == "POST":
         form = MovieForm(request.POST, request.FILES)
         if form.is_valid():
             movie = form.save()
-            messages.success(request, "Movie added")
+            messages.success(request, "Фільм додано")
             return redirect("movie_detail", pk=movie.pk)
     else:
         form = MovieForm()
@@ -170,14 +171,14 @@ def movie_create(request):
 @login_required
 def movie_edit(request, pk):
     if not is_staff(request.user):
-        messages.error(request, "Access denied")
+        messages.error(request, "Доступ заборонено")
         return redirect("movie_list")
     movie = get_object_or_404(Movie, pk=pk)
     if request.method == "POST":
         form = MovieForm(request.POST, request.FILES, instance=movie)
         if form.is_valid():
             form.save()
-            messages.success(request, "Movie updated")
+            messages.success(request, "Фільм оновлено")
             return redirect("movie_detail", pk=movie.pk)
     else:
         form = MovieForm(instance=movie)
@@ -188,11 +189,11 @@ def movie_edit(request, pk):
 @require_http_methods(["POST"])
 def movie_delete(request, pk):
     if not is_staff(request.user):
-        messages.error(request, "Access denied")
+        messages.error(request, "Доступ заборонено")
         return redirect("movie_list")
     movie = get_object_or_404(Movie, pk=pk)
     movie.delete()
-    messages.success(request, "Movie deleted")
+    messages.success(request, "Фільм видалено")
     return redirect("movie_list")
 
 
@@ -294,11 +295,11 @@ def session_book(request, session_id):
         booking.save()
         messages.success(
             request,
-            f"Бронювання створено на сеанс {session.movie.title} "
-            f"{session.date:%d.%m %H:%M} ({booking.tickets} квитків).",
+            f"Бронювання створено: {session.movie.title}, "
+            f"{session.date:%d.%m %H:%M} — {booking.tickets} квитків.",
         )
     else:
-        messages.error(request, form.errors.as_text())
+        messages.error(request, "Невірна кількість квитків. Введіть число від 1 до 10.")
     return redirect("sessions_list")
 
 
@@ -314,7 +315,7 @@ def booking_update(request, booking_id):
         form.save()
         messages.success(request, "Бронювання оновлено")
     else:
-        messages.error(request, form.errors.as_text())
+        messages.error(request, "Невірна кількість квитків. Введіть число від 1 до 10.")
     return redirect("my_bookings")
 
 
@@ -399,10 +400,67 @@ def schedule_plan(request):
     return render(request, "kineo/schedule_plan.html")
 
 
+def _hall_staff_redirect(request):
+    if not request.user.is_authenticated or not is_staff(request.user):
+        messages.error(request, "Доступ заборонено")
+        return redirect("movie_list")
+    return None
+
+
+@login_required
+def hall_list(request):
+    if (r := _hall_staff_redirect(request)):
+        return r
+    halls = Hall.objects.all()
+    return render(request, "kineo/hall_list.html", {"halls": halls})
+
+
+@login_required
+def hall_create(request):
+    if (r := _hall_staff_redirect(request)):
+        return r
+    if request.method == "POST":
+        form = HallForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Зал додано")
+            return redirect("hall_list")
+    else:
+        form = HallForm()
+    return render(request, "kineo/hall_form.html", {"form": form, "hall": None, "is_edit": False})
+
+
+@login_required
+def hall_edit(request, pk):
+    if (r := _hall_staff_redirect(request)):
+        return r
+    hall = get_object_or_404(Hall, pk=pk)
+    if request.method == "POST":
+        form = HallForm(request.POST, instance=hall)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Зал оновлено")
+            return redirect("hall_list")
+    else:
+        form = HallForm(instance=hall)
+    return render(request, "kineo/hall_form.html", {"form": form, "hall": hall, "is_edit": True})
+
+
+@login_required
+@require_http_methods(["POST"])
+def hall_delete(request, pk):
+    if (r := _hall_staff_redirect(request)):
+        return r
+    hall = get_object_or_404(Hall, pk=pk)
+    hall.delete()
+    messages.success(request, "Зал видалено")
+    return redirect("hall_list")
+
+
 @login_required
 def session_create(request, movie_id):
     if not is_staff(request.user):
-        messages.error(request, "Access denied")
+        messages.error(request, "Доступ заборонено")
         return redirect("movie_list")
     movie = get_object_or_404(Movie, pk=movie_id)
     if request.method == "POST":
@@ -422,11 +480,11 @@ def session_create(request, movie_id):
 @require_http_methods(["POST"])
 def review_create(request, movie_id):
     if not is_client(request.user):
-        messages.error(request, "Only clients can add reviews")
+        messages.error(request, "Додавати відгуки можуть лише клієнти")
         return redirect("movie_detail", pk=movie_id)
     movie = get_object_or_404(Movie, pk=movie_id)
     if Review.objects.filter(movie=movie, user=request.user).exists():
-        messages.error(request, "You have already reviewed this movie")
+        messages.error(request, "Ви вже залишали відгук на цей фільм")
         return redirect("movie_detail", pk=movie_id)
     UserProfile.objects.get_or_create(user=request.user)
     form = ReviewForm(request.POST)
@@ -435,7 +493,7 @@ def review_create(request, movie_id):
         review.movie = movie
         review.user = request.user
         review.save()
-        messages.success(request, "Review added")
+        messages.success(request, "Відгук додано")
     else:
         messages.error(request, form.errors.as_text())
     return redirect("movie_detail", pk=movie_id)
@@ -445,13 +503,13 @@ def review_create(request, movie_id):
 def review_edit(request, pk):
     review = get_object_or_404(Review, pk=pk)
     if review.user_id != request.user.id:
-        messages.error(request, "Access denied")
+        messages.error(request, "Доступ заборонено")
         return redirect("movie_detail", pk=review.movie_id)
     if request.method == "POST":
         form = ReviewForm(request.POST, instance=review)
         if form.is_valid():
             form.save()
-            messages.success(request, "Review updated")
+            messages.success(request, "Відгук оновлено")
             return redirect("movie_detail", pk=review.movie_id)
     else:
         form = ReviewForm(instance=review)
@@ -464,10 +522,10 @@ def review_delete(request, pk):
     review = get_object_or_404(Review, pk=pk)
     movie_id = review.movie_id
     if review.user_id != request.user.id and not is_staff(request.user):
-        messages.error(request, "Access denied")
+        messages.error(request, "Доступ заборонено")
         return redirect("movie_detail", pk=movie_id)
     review.delete()
-    messages.success(request, "Review deleted")
+    messages.success(request, "Відгук видалено")
     return redirect("movie_detail", pk=movie_id)
 
 
@@ -486,7 +544,7 @@ def register_view(request):
             user.groups.add(clients)
             UserProfile.objects.get_or_create(user=user)
             login(request, user)
-            messages.success(request, "Registration successful")
+            messages.success(request, "Реєстрація успішна")
             return redirect("movie_list")
     else:
         form = RegisterForm()
@@ -501,7 +559,7 @@ class KineoLoginView(LoginView):
 
 def logout_view(request):
     logout(request)
-    messages.success(request, "You have been logged out")
+    messages.success(request, "Ви вийшли з облікового запису")
     return redirect("movie_list")
 
 
@@ -513,7 +571,7 @@ def profile_view(request):
         username = request.POST.get("username", "").strip()
         if username:
             if username != request.user.username and User.objects.filter(username=username).exists():
-                messages.error(request, "User with this username already exists")
+                messages.error(request, "Користувач з таким іменем вже існує")
                 form = ProfileForm(instance=profile)
                 return render(request, "kineo/profile.html", {"form": form, "avatars": avatars})
             if username != request.user.username:
@@ -525,15 +583,15 @@ def profile_view(request):
             if avatar_filename in avatar_names:
                 profile.photo.name = f"avatars/{avatar_filename}"
                 profile.save(update_fields=["photo"])
-                messages.success(request, "Avatar updated")
+                messages.success(request, "Аватар оновлено")
                 return redirect("profile")
-            messages.error(request, "Invalid avatar selection")
+            messages.error(request, "Невірний вибір аватара")
             form = ProfileForm(instance=profile)
             return render(request, "kineo/profile.html", {"form": form, "avatars": avatars})
         form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            messages.success(request, "Profile updated")
+            messages.success(request, "Профіль оновлено")
             return redirect("profile")
     else:
         form = ProfileForm(instance=profile)

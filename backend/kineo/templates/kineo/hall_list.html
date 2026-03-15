@@ -1,0 +1,38 @@
+{% extends "kineo/base.html" %}
+
+{% block title %}Зали - KINEO{% endblock %}
+
+{% block content %}
+<section class="list-view">
+    <h1>Зали</h1>
+    <p><a href="{% url 'hall_create' %}" class="btn btn-primary">Додати зал</a></p>
+    {% if halls %}
+    <table class="hall-table">
+        <thead>
+            <tr>
+                <th>Назва</th>
+                <th>Кількість місць</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in halls %}
+            <tr>
+                <td>{{ h.name }}</td>
+                <td>{{ h.seats }}</td>
+                <td class="hall-actions">
+                    <a href="{% url 'hall_edit' h.pk %}" class="btn btn-secondary btn-sm">Редагувати</a>
+                    <form method="post" action="{% url 'hall_delete' h.pk %}" style="display:inline;" onsubmit="return confirm('Видалити зал?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty">Немає залів</p>
+    {% endif %}
+</section>
+{% endblock %}

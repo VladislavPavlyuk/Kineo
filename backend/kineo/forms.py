@@ -3,7 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from .models import Movie, Session, Review, UserProfile, Booking
+from .models import Movie, Session, Review, UserProfile, Booking, Hall
 
 
 class MovieForm(forms.ModelForm):
@@ -47,6 +47,16 @@ class ReviewForm(forms.ModelForm):
         widgets = {
             "text": forms.Textarea(attrs={"rows": 3}),
             "rating": forms.Select(choices=[(i, f"{i} ★") for i in range(1, 6)]),
+        }
+
+
+class HallForm(forms.ModelForm):
+    class Meta:
+        model = Hall
+        fields = ["name", "seats"]
+        labels = {
+            "name": "Назва",
+            "seats": "Кількість місць",
         }
 
 

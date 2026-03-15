@@ -30,6 +30,19 @@ class Studio(models.Model):
         return self.name
 
 
+class Hall(models.Model):
+    name = models.CharField(max_length=255)
+    seats = models.PositiveIntegerField(default=50)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Зал"
+        verbose_name_plural = "Зали"
+
+    def __str__(self):
+        return f"{self.name} ({self.seats} місць)"
+
+
 class Movie(models.Model):
     title = models.CharField(max_length=255)
     studio = models.ForeignKey(

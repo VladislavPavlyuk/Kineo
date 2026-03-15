@@ -16,6 +16,7 @@
                 <a href="{% url 'sessions_list' %}?{{ request.GET.urlencode }}" class="hover-accent">Сеанси</a>
                 {% if is_staff %}
                     <a href="{% url 'movie_create' %}" class="hover-accent">Додати фільм</a>
+                    <a href="{% url 'hall_list' %}" class="hover-accent">Зали</a>
                     <a href="{% url 'schedule_plan' %}" class="hover-accent">Планувати сеанси</a>
                 {% endif %}
             </nav>
@@ -70,11 +71,11 @@
         </header>
         <main class="main">
             {% if messages %}
-                <ul class="messages">
+                <div class="messages" role="alert" aria-live="polite">
                     {% for message in messages %}
-                        <li class="{{ message.tags }}">{{ message }}</li>
+                        <div class="message-item message-item--{{ message.tags|default:'info' }}">{{ message }}</div>
                     {% endfor %}
-                </ul>
+                </div>
             {% endif %}
             {% block content %}{% endblock %}
         </main>
