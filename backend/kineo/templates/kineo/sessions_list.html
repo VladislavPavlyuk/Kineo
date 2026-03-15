@@ -1,4 +1,5 @@
 {% extends "kineo/base.html" %}
+{% load kineo_extras %}
 
 {% block title %}Сеанси - KINEO{% endblock %}
 
@@ -19,22 +20,28 @@
                 <div class="session-movie">{{ s.movie.title }}</div>
                 <div class="session-details">
                     <span class="date">{{ s.date|date:"D, d M, H:i" }}</span>
-                    <span class="hall">Зал {{ s.hall_number }}</span>
+                    <span class="hall">{{ s.hall_number|hall_display }}</span>
                 </div>
             </a>
-            {% if is_client %}
-            <form method="post" action="{% url 'session_book' s.id %}" class="session-book-form">
-                {% csrf_token %}
-                <input type="number"
-                       name="tickets"
-                       min="1"
-                       max="10"
-                       value="1"
-                       class="session-book-input"
-                       aria-label="Кількість квитків">
-                <button type="submit" class="btn btn-primary btn-sm">Забронювати</button>
-            </form>
-            {% endif %}
+            <div class="session-card-actions">
+                {% if is_client %}
+                <form method="post" action="{% url 'session_book' s.id %}" class="session-book-form">
+                    {% csrf_token %}
+                    <input type="number"
+                           name="tickets"
+                           min="1"
+                           max="10"
+                           value="1"
+                           class="session-book-input"
+                           aria-label="Кількість квитків">
+                    <button type="submit" class="btn btn-primary btn-sm">Забронювати</button>
+                </form>
+                {% endif %}
+                {% if is_staff %}
+                <a href="{% url 'session_edit' s.pk %}" class="btn btn-secondary btn-sm">Редагувати</a>
+                <a href="{% url 'session_delete' s.pk %}" class="btn btn-danger btn-sm">Видалити</a>
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>

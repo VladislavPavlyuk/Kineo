@@ -458,6 +458,7 @@ a:hover { color: var(--accent-hover); }
 .session-card:hover { border-color: var(--accent); }
 .session-movie { font-weight: 500; }
 .session-details { display: flex; gap: 1.5rem; color: var(--muted); font-size: 0.9rem; }
+.session-card-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
 .session-book-form { display: flex; align-items: center; gap: 0.5rem; }
 .session-book-input {
   width: 60px;

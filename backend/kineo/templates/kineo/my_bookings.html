@@ -1,4 +1,5 @@
 {% extends "kineo/base.html" %}
+{% load kineo_extras %}
 
 {% block title %}Мої бронювання - KINEO{% endblock %}
 
@@ -13,7 +14,7 @@
                 <div class="session-movie">{{ b.session.movie.title }}</div>
                 <div class="session-details">
                     <span class="date">{{ b.session.date|date:"D, d M, H:i" }}</span>
-                    <span class="hall">Зал {{ b.session.hall_number }}</span>
+                    <span class="hall">{{ b.session.hall_number|hall_display }}</span>
                     <span class="hall">Квитків: {{ b.tickets }}</span>
                 </div>
             </div>

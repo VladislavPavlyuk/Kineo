@@ -506,7 +506,51 @@ def session_create(request, movie_id):
             return redirect("movie_detail", pk=movie_id)
     else:
         form = SessionForm()
-    return render(request, "kineo/session_form.html", {"form": form, "movie": movie})
+    return render(request, "kineo/session_form.html", {"form": form, "movie": movie, "is_edit": False})
+
+
+@login_required
+def session_edit(request, pk):
+    if not is_staff(request.user):
+        messages.error(request, "Доступ заборонено")
+        return redirect("sessions_list")
+    session = get_object_or_404(Session, pk=pk)
+    if request.method == "POST":
+        form = SessionForm(request.POST, instance=session)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Сеанс оновлено")
+            return redirect("sessions_list")
+    else:
+        form = SessionForm(instance=session)
+    return render(
+        request,
+        "kineo/session_form.html",
+        {"form": form, "movie": session.movie, "session": session, "is_edit": True},
+    )
+
+
+@login_required
+def session_delete(request, pk):
+    if not is_staff(request.user):
+        messages.error(request, "Доступ заборонено")
+        return redirect("sessions_list")
+    session = get_object_or_404(Session, pk=pk)
+    if request.method == "GET":
+        return render(
+            request,
+            "kineo/confirm.html",
+            {
+                "message": "Видалити сеанс?",
+                "post_url": request.path,
+                "cancel_url": reverse("sessions_list"),
+                "submit_label": "Так, видалити",
+                "cancel_label": "Ні",
+            },
+        )
+    session.delete()
+    messages.success(request, "Сеанс видалено")
+    return redirect("sessions_list")
 
 
 @login_required

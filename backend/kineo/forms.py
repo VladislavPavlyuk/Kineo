@@ -3,6 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from .constants import HALL_NAMES
 from .models import Movie, Session, Review, UserProfile, Booking, Hall
 
 
@@ -24,12 +25,17 @@ class MovieForm(forms.ModelForm):
 
 
 class SessionForm(forms.ModelForm):
+    hall_number = forms.TypedChoiceField(
+        choices=[(k, v) for k, v in HALL_NAMES.items()],
+        coerce=int,
+        label="Зал",
+    )
+
     class Meta:
         model = Session
         fields = ["date", "hall_number"]
         labels = {
             "date": "Дата та час",
-            "hall_number": "Номер залу",
         }
         widgets = {
             "date": forms.DateTimeInput(attrs={"type": "datetime-local"}),
