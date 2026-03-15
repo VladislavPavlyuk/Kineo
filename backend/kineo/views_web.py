@@ -23,7 +23,7 @@ from .forms import (
     BookingForm,
 )
 from .permissions import is_staff, is_client
-from .services.schedule_generator import generate_month_schedule
+from .services.schedule_generator import generate_month_schedule, plan_week_schedule
 
 
 def _sqlite_unicode_lower():
@@ -382,6 +382,21 @@ def schedule_generate(request):
     created = generate_month_schedule()
     messages.success(request, f"Розклад згенеровано. Додано сеансів: {created}.")
     return redirect("sessions_list")
+
+
+@login_required
+def schedule_plan(request):
+    if not is_staff(request.user):
+        messages.error(request, "Доступ заборонено")
+        return redirect("movie_list")
+    if request.method == "POST":
+        created = plan_week_schedule()
+        messages.success(
+            request,
+            f"Розклад на наступний тиждень заплановано. Додано сеансів: {created}.",
+        )
+        return redirect("sessions_list")
+    return render(request, "kineo/schedule_plan.html")
 
 
 @login_required

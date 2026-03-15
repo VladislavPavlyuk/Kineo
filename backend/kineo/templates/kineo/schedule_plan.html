@@ -1,0 +1,15 @@
+{% extends "kineo/base.html" %}
+
+{% block title %}Планувати сеанси - KINEO{% endblock %}
+
+{% block content %}
+<section class="list-view">
+    <h1>Планувати сеанси</h1>
+    <p>Запланувати сеанси на тиждень, що починається наступного дня після останнього дня поточного розкладу. Усі фільми з бази будуть рівномірно розподілені по днях і часах.</p>
+    <form method="post" class="schedule-generate-form">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Планувати сеанси на наступний тиждень</button>
+    </form>
+    <p><a href="{% url 'sessions_list' %}" class="btn btn-secondary">Назад до сеансів</a></p>
+</section>
+{% endblock %}

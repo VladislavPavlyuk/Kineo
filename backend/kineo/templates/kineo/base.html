@@ -16,6 +16,7 @@
                 <a href="{% url 'sessions_list' %}?{{ request.GET.urlencode }}" class="hover-accent">Сеанси</a>
                 {% if is_staff %}
                     <a href="{% url 'movie_create' %}" class="hover-accent">Додати фільм</a>
+                    <a href="{% url 'schedule_plan' %}" class="hover-accent">Планувати сеанси</a>
                 {% endif %}
             </nav>
             {% if navbar_filter_options %}

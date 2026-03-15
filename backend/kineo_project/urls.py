@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
@@ -24,6 +25,7 @@ from kineo.views_web import (
     movie_delete,
     sessions_list,
     schedule_generate,
+    schedule_plan,
     session_book,
     session_create,
     review_create,
@@ -54,6 +56,7 @@ router.register("bookings", BookingViewSet, basename="booking")
 router.register("favorites", FavoriteMovieViewSet, basename="favoritemovie")
 
 urlpatterns = [
+    path("favicon.ico", RedirectView.as_view(url="/static/kineo/favicon.ico", permanent=True)),
     path("", movie_list, name="movie_list"),
     path("admin/", admin.site.urls),
     path("movies/", movie_list),
@@ -64,6 +67,7 @@ urlpatterns = [
     path("movies/<int:pk>/book/", movie_book, name="movie_book"),
     path("sessions/", sessions_list, name="sessions_list"),
     path("sessions/generate/", schedule_generate, name="schedule_generate"),
+    path("sessions/plan/", schedule_plan, name="schedule_plan"),
     path("sessions/<int:session_id>/book/", session_book, name="session_book"),
     path("movies/<int:movie_id>/sessions/new/", session_create, name="session_create"),
     path("movies/<int:movie_id>/reviews/", review_create, name="review_create"),
