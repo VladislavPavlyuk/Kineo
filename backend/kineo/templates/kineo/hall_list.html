@@ -22,10 +22,7 @@
                 <td>{{ h.seats }}</td>
                 <td class="hall-actions">
                     <a href="{% url 'hall_edit' h.pk %}" class="btn btn-secondary btn-sm">Редагувати</a>
-                    <form method="post" action="{% url 'hall_delete' h.pk %}" style="display:inline;" onsubmit="return confirm('Видалити зал?');">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
-                    </form>
+                    <a href="{% url 'hall_delete' h.pk %}" class="btn btn-danger btn-sm">Видалити</a>
                 </td>
             </tr>
             {% endfor %}

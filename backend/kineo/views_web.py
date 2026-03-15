@@ -186,12 +186,23 @@ def movie_edit(request, pk):
 
 
 @login_required
-@require_http_methods(["POST"])
 def movie_delete(request, pk):
     if not is_staff(request.user):
         messages.error(request, "Доступ заборонено")
         return redirect("movie_list")
     movie = get_object_or_404(Movie, pk=pk)
+    if request.method == "GET":
+        return render(
+            request,
+            "kineo/confirm.html",
+            {
+                "message": "Видалити фільм?",
+                "post_url": request.path,
+                "cancel_url": reverse("movie_detail", kwargs={"pk": movie.pk}),
+                "submit_label": "Так, видалити",
+                "cancel_label": "Ні",
+            },
+        )
     movie.delete()
     messages.success(request, "Фільм видалено")
     return redirect("movie_list")
@@ -320,12 +331,23 @@ def booking_update(request, booking_id):
 
 
 @login_required
-@require_http_methods(["POST"])
 def booking_delete(request, booking_id):
     if not is_client(request.user):
         messages.error(request, "Тільки клієнти можуть видаляти бронювання")
         return redirect("my_bookings")
     booking = get_object_or_404(Booking, pk=booking_id, user=request.user)
+    if request.method == "GET":
+        return render(
+            request,
+            "kineo/confirm.html",
+            {
+                "message": "Видалити бронювання?",
+                "post_url": request.path,
+                "cancel_url": reverse("my_bookings"),
+                "submit_label": "Так, видалити",
+                "cancel_label": "Ні",
+            },
+        )
     booking.delete()
     messages.success(request, "Бронювання видалено")
     return redirect("my_bookings")
@@ -447,11 +469,22 @@ def hall_edit(request, pk):
 
 
 @login_required
-@require_http_methods(["POST"])
 def hall_delete(request, pk):
     if (r := _hall_staff_redirect(request)):
         return r
     hall = get_object_or_404(Hall, pk=pk)
+    if request.method == "GET":
+        return render(
+            request,
+            "kineo/confirm.html",
+            {
+                "message": "Видалити зал?",
+                "post_url": request.path,
+                "cancel_url": reverse("hall_list"),
+                "submit_label": "Так, видалити",
+                "cancel_label": "Ні",
+            },
+        )
     hall.delete()
     messages.success(request, "Зал видалено")
     return redirect("hall_list")
@@ -517,13 +550,24 @@ def review_edit(request, pk):
 
 
 @login_required
-@require_http_methods(["POST"])
 def review_delete(request, pk):
     review = get_object_or_404(Review, pk=pk)
     movie_id = review.movie_id
     if review.user_id != request.user.id and not is_staff(request.user):
         messages.error(request, "Доступ заборонено")
         return redirect("movie_detail", pk=movie_id)
+    if request.method == "GET":
+        return render(
+            request,
+            "kineo/confirm.html",
+            {
+                "message": "Видалити відгук?",
+                "post_url": request.path,
+                "cancel_url": reverse("movie_detail", kwargs={"pk": movie_id}),
+                "submit_label": "Так, видалити",
+                "cancel_label": "Ні",
+            },
+        )
     review.delete()
     messages.success(request, "Відгук видалено")
     return redirect("movie_detail", pk=movie_id)

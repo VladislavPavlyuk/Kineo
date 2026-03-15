@@ -1,0 +1,15 @@
+{% extends "kineo/base.html" %}
+
+{% block title %}Підтвердження - KINEO{% endblock %}
+
+{% block content %}
+<section class="confirm-dialog">
+    <h1>Підтвердження</h1>
+    <p class="confirm-message">{{ message }}</p>
+    <form method="post" action="{{ post_url }}" class="confirm-actions">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">{{ submit_label }}</button>
+        <a href="{{ cancel_url }}" class="btn btn-secondary">{{ cancel_label }}</a>
+    </form>
+</section>
+{% endblock %}

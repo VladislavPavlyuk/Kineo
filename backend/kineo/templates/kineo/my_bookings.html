@@ -29,12 +29,7 @@
                            aria-label="Кількість квитків">
                     <button type="submit" class="btn btn-secondary btn-sm">Змінити</button>
                 </form>
-                <form method="post"
-                      action="{% url 'booking_delete' b.id %}"
-                      onsubmit="return confirm('Видалити бронювання?');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-sm">Скасувати</button>
-                </form>
+                <a href="{% url 'booking_delete' b.id %}" class="btn btn-danger btn-sm">Скасувати</a>
             </div>
         </div>
         {% endfor %}

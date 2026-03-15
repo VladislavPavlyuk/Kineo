@@ -35,11 +35,7 @@
             {% if is_staff %}
             <div class="actions">
                 <a href="{% url 'movie_edit' movie.pk %}" class="btn btn-primary">Редагувати</a>
-                <form method="post" action="{% url 'movie_delete' movie.pk %}" style="display:inline;"
-                      onsubmit="return confirm('Видалити фільм?');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Видалити</button>
-                </form>
+                <a href="{% url 'movie_delete' movie.pk %}" class="btn btn-danger">Видалити</a>
             </div>
             {% endif %}
         </div>
@@ -84,19 +80,11 @@
                 {% if user.is_authenticated and r.user_id == user.id %}
                 <div class="review-actions">
                     <a href="{% url 'review_edit' r.pk %}" class="btn btn-link btn-sm">Редагувати</a>
-                    <form method="post" action="{% url 'review_delete' r.pk %}" style="display:inline;"
-                          onsubmit="return confirm('Видалити відгук?');">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-link btn-sm danger">Видалити</button>
-                    </form>
+                    <a href="{% url 'review_delete' r.pk %}" class="btn btn-link btn-sm danger">Видалити</a>
                 </div>
                 {% elif is_staff %}
                 <div class="review-actions">
-                    <form method="post" action="{% url 'review_delete' r.pk %}" style="display:inline;"
-                          onsubmit="return confirm('Видалити відгук?');">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-link btn-sm danger">Видалити</button>
-                    </form>
+                    <a href="{% url 'review_delete' r.pk %}" class="btn btn-link btn-sm danger">Видалити</a>
                 </div>
                 {% endif %}
             </div>
