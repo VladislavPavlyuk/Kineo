@@ -9,11 +9,16 @@
 </head>
 <body>
     <div class="layout">
-        <header class="header">
+        <header class="header" id="navbar">
             <a href="{% url 'movie_list' %}" class="logo">KINEO</a>
+            <button type="button" class="navbar-toggle" id="navbar-toggle" aria-expanded="false" aria-controls="navbar-collapse" aria-label="Меню">
+                <span class="navbar-toggle-icon"></span>
+            </button>
+            <div class="header-collapse" id="navbar-collapse">
             <nav>
                 <a href="{% url 'movie_list' %}?{{ request.GET.urlencode }}" class="hover-accent">Фільми</a>
                 <a href="{% url 'sessions_list' %}?{{ request.GET.urlencode }}" class="hover-accent">Сеанси</a>
+                <button type="button" class="btn btn-secondary hover-accent stats-trigger" data-stats-url="{% url 'api_stats' %}">Статистика</button>
                 {% if is_staff %}
                     <a href="{% url 'movie_create' %}" class="hover-accent">Додати фільм</a>
                     <a href="{% url 'hall_list' %}" class="hover-accent">Зали</a>
@@ -68,6 +73,7 @@
                     <a href="{% url 'register' %}" class="btn btn-secondary">Register</a>
                 {% endif %}
             </div>
+            </div>
         </header>
         <main class="main">
             {% if messages %}
@@ -83,17 +89,89 @@
             <span>KINEO © {% now "Y" %}</span>
         </footer>
     </div>
+
+    <div id="stats-modal" class="modal-overlay" aria-hidden="true">
+        <div class="modal stats-modal" role="dialog" aria-labelledby="stats-modal-title">
+            <div class="modal-header">
+                <h2 id="stats-modal-title" class="modal-title">Статистика</h2>
+                <button type="button" class="btn btn-secondary btn-sm modal-close" aria-label="Закрити">&times;</button>
+            </div>
+            <div class="stats-modal-body">
+                <p class="stats-loading">Завантаження…</p>
+                <div class="stats-content" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
     (function() {
         var form = document.getElementById("navbar-search");
         var input = document.getElementById("navbar-search-input");
         var timeout;
-        input.addEventListener("input", function() {
-            clearTimeout(timeout);
-            var val = this.value.trim();
-            if (val.length >= 3 || val.length === 0) {
-                timeout = setTimeout(function() { form.submit(); }, 300);
-            }
+        if (form && input) {
+            input.addEventListener("input", function() {
+                clearTimeout(timeout);
+                var val = this.value.trim();
+                if (val.length >= 3 || val.length === 0) {
+                    timeout = setTimeout(function() { form.submit(); }, 300);
+                }
+            });
+        }
+    })();
+    (function() {
+        var trigger = document.querySelector(".stats-trigger");
+        var overlay = document.getElementById("stats-modal");
+        var closeBtn = overlay && overlay.querySelector(".modal-close");
+        var body = overlay && overlay.querySelector(".stats-modal-body");
+        var loadingEl = body && body.querySelector(".stats-loading");
+        var contentEl = body && body.querySelector(".stats-content");
+        var statsUrl = trigger && trigger.getAttribute("data-stats-url");
+        if (!trigger || !overlay || !statsUrl) return;
+        function openModal() {
+            overlay.classList.add("open");
+            overlay.setAttribute("aria-hidden", "false");
+            if (loadingEl) loadingEl.style.display = "block";
+            if (contentEl) contentEl.style.display = "none";
+            fetch(statsUrl)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (loadingEl) loadingEl.style.display = "none";
+                    if (contentEl) {
+                        contentEl.innerHTML = "<ul class=\"stats-list\">" +
+                            "<li><strong>Середня оцінка фільмів:</strong> " + data.average_movie_rating + "</li>" +
+                            "<li><strong>Кількість користувачів:</strong> " + data.users_count + "</li>" +
+                            "<li><strong>Кількість фільмів:</strong> " + data.movies_count + "</li>" +
+                            "</ul>";
+                        contentEl.style.display = "block";
+                    }
+                })
+                .catch(function() {
+                    if (loadingEl) loadingEl.textContent = "Помилка завантаження.";
+                });
+        }
+        function closeModal() {
+            overlay.classList.remove("open");
+            overlay.setAttribute("aria-hidden", "true");
+        }
+        trigger.addEventListener("click", openModal);
+        if (closeBtn) closeBtn.addEventListener("click", closeModal);
+        overlay.addEventListener("click", function(e) {
+            if (e.target === overlay) closeModal();
+        });
+    })();
+    (function() {
+        var toggle = document.getElementById("navbar-toggle");
+        var header = document.getElementById("navbar");
+        var collapse = document.getElementById("navbar-collapse");
+        if (!toggle || !header || !collapse) return;
+        toggle.addEventListener("click", function() {
+            var open = header.classList.toggle("navbar-open");
+            toggle.setAttribute("aria-expanded", open);
+        });
+        collapse.querySelectorAll("a[href], button").forEach(function(el) {
+            el.addEventListener("click", function() {
+                if (window.innerWidth < 993) header.classList.remove("navbar-open");
+            });
         });
     })();
     </script>

@@ -26,7 +26,7 @@ class MovieForm(forms.ModelForm):
 
 class SessionForm(forms.ModelForm):
     hall_number = forms.TypedChoiceField(
-        choices=[(k, v) for k, v in HALL_NAMES.items()],
+        choices=[],  # set in __init__
         coerce=int,
         label="Зал",
     )
@@ -40,6 +40,16 @@ class SessionForm(forms.ModelForm):
         widgets = {
             "date": forms.DateTimeInput(attrs={"type": "datetime-local"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        choices = [(k, v) for k, v in HALL_NAMES.items()]
+        instance = kwargs.get("instance")
+        if instance and getattr(instance, "hall_number", None) is not None:
+            h = int(instance.hall_number)
+            if h not in HALL_NAMES:
+                choices.append((h, f"Зал {h}"))
+        self.fields["hall_number"].choices = choices
 
 
 class ReviewForm(forms.ModelForm):

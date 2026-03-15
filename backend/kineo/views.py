@@ -1,5 +1,6 @@
+from django.db.models import Avg
+
 from rest_framework import viewsets, status
-# action дозволяє створювати кастомні endpoint-и всередині ViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth.models import User
 
-from .models import UserProfile, Review, Booking, FavoriteMovie
+from .models import UserProfile, Review, Booking, FavoriteMovie, Movie
 from .serializers import (
     StudioSerializer,
     MovieSerializer,
@@ -27,6 +28,19 @@ from .permissions import (
     FavoriteMoviePermissions,
     is_client,
 )
+
+
+class CinemaStatsView(APIView):
+    """GET: середня оцінка фільмів, кількість користувачів, кількість фільмів."""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        avg_rating = Review.objects.aggregate(avg=Avg("rating"))["avg"]
+        return Response({
+            "average_movie_rating": round(float(avg_rating or 0), 2),
+            "users_count": User.objects.count(),
+            "movies_count": Movie.objects.count(),
+        })
 
 
 class StudioViewSet(viewsets.ReadOnlyModelViewSet):

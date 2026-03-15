@@ -15,6 +15,7 @@ from kineo.views import (
     MeView,
     BookingViewSet,
     FavoriteMovieViewSet,
+    CinemaStatsView,
 )
 from kineo.views_auth import RegisterView
 from kineo.views_web import (
@@ -101,6 +102,7 @@ urlpatterns = [
     path("api/auth/token/refresh/", TokenRefreshView.as_view()),
     path("api/auth/register/", RegisterView.as_view()),
     path("api/auth/me/", MeView.as_view()),
+    path("api/stats/", CinemaStatsView.as_view(), name="api_stats"),
     path("api/", include(router.urls)),
 ]
 
